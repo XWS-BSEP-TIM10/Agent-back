@@ -18,12 +18,10 @@ import java.util.UUID;
 public class CompanyService {
     private final CompanyRepository companyRepository;
     private final UserService userService;
-    private final RoleService roleService;
 
-    public CompanyService(CompanyRepository companyRepository, UserService userService, RoleService roleService) {
+    public CompanyService(CompanyRepository companyRepository, UserService userService) {
         this.companyRepository = companyRepository;
         this.userService = userService;
-        this.roleService = roleService;
     }
 
     public CreateCompanyResponseDTO addCompany(CreateCompanyRequestDTO createDTO) {
