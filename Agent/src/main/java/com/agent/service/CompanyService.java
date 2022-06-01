@@ -11,6 +11,7 @@ import com.agent.repository.CompanyRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -62,5 +63,9 @@ public class CompanyService {
         User user = this.userService.findById(company.getOwner().getId()).orElseThrow(UserNotFoundException::new);
         userService.updateUserRole(user, "ROLE_COMPANY_OWNER");
         companyRepository.save(company);
+    }
+
+    public Optional<Company> findById(String id) {
+        return companyRepository.findById(id);
     }
 }
