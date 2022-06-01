@@ -77,6 +77,39 @@ public class Company {
         return owner;
     }
 
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
+    }
+
     public double getRating() {
         return rating;
     }

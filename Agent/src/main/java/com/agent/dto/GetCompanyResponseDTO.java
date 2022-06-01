@@ -2,30 +2,29 @@ package com.agent.dto;
 
 import com.agent.model.Company;
 
-public class CreateCompanyResponseDTO {
+public class GetCompanyResponseDTO {
+
     private String id;
 
     private String ownerId;
 
-
     private String name;
-
 
     private String address;
 
-
     private String website;
-
 
     private String phoneNumber;
 
-
     private String email;
-
 
     private String description;
 
-    public CreateCompanyResponseDTO(Company company) {
+    private double rating;
+
+    private boolean activated;
+
+    public GetCompanyResponseDTO(Company company) {
         this.id = company.getId();
         this.ownerId = company.getOwner().getId();
         this.name = company.getName();
@@ -34,15 +33,16 @@ public class CreateCompanyResponseDTO {
         this.phoneNumber = company.getPhoneNumber();
         this.email = company.getEmail();
         this.description = company.getDescription();
-    }
-
-
-    public String getId() {
-        return id;
+        this.rating = company.getRating();
+        this.activated = company.isActivated();
     }
 
     public String getOwnerId() {
         return ownerId;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getName() {
@@ -67,5 +67,13 @@ public class CreateCompanyResponseDTO {
 
     public String getDescription() {
         return description;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public boolean isActivated() {
+        return activated;
     }
 }

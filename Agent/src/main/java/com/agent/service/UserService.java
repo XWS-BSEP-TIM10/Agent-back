@@ -32,7 +32,7 @@ public class UserService {
     }
 
     public User save(User user) throws UserAlreadyExistsException {
-        if(repository.findByEmail(user.getEmail()).isPresent())
+        if (repository.findByEmail(user.getEmail()).isPresent())
             throw new UserAlreadyExistsException();
         user.setId(UUID.randomUUID().toString());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -41,5 +41,12 @@ public class UserService {
         roles.add(roleService.findByName("ROLE_USER"));
         user.setRoles(roles);
         return repository.save(user);
+    }
+
+    public void updateUserRole(User user, String roleName) {
+        List<Role> roles = new ArrayList<>();
+        roles.add(roleService.findByName(roleName));
+        user.setRoles(roles);
+        repository.save(user);
     }
 }
