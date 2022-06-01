@@ -1,11 +1,17 @@
 package com.agent.model;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     private String id;
@@ -38,6 +44,11 @@ public class User {
         this.activated = false;
     }
 
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
     public String getId() {
         return id;
     }
@@ -46,10 +57,14 @@ public class User {
         this.id = id;
     }
 
-    /*@Override
+    @Override
     public String getUsername() {
-        return username;
-    }*/
+        return email;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 
     public void setEmail(String email) {
         this.email = email;
@@ -79,7 +94,7 @@ public class User {
         this.activated = activated;
     }
 
-    /*@Override
+    @Override
     public boolean isAccountNonExpired() {
         return true;
     }
@@ -103,12 +118,10 @@ public class User {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<Permission> permissions = new HashSet<Permission>();
         for(Role role : this.roles){
-            for(Permission permission : role.getPermission()){
-                permissions.add(permission);
-            }
+            permissions.addAll(role.getPermission());
         }
         return permissions;
-    }*/
+    }
 
 
 }
