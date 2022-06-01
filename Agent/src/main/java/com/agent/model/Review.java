@@ -1,5 +1,4 @@
 package com.agent.model;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -78,5 +77,17 @@ public class Review {
 
     public Date getCreationDate() {
         return creationDate;
+    }
+
+    public void setReviewer(User reviewer) {
+        this.reviewer = reviewer;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 }

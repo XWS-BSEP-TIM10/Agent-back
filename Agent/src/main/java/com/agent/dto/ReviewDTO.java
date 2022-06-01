@@ -1,40 +1,42 @@
 package com.agent.dto;
 
+import com.agent.model.Review;
+
 import javax.validation.constraints.NotBlank;
+import java.text.SimpleDateFormat;
 
-public class NewReviewRequestDTO {
+public class ReviewDTO {
 
-    @NotBlank
     private String title;
 
-    @NotBlank
     private String positive;
 
-    @NotBlank
     private String negative;
 
-    @NotBlank
     private String position;
 
     private double rating;
 
-    @NotBlank
-    private String reviewerId;
+    private String creationDate;
 
-    @NotBlank
-    private String companyId;
+    public ReviewDTO() {
+    }
 
-    public NewReviewRequestDTO(String title, String positive, String negative, String position, double rating, String reviewerId, String companyId) {
+    public ReviewDTO(String title, String positive, String negative, String position, double rating) {
         this.title = title;
         this.positive = positive;
         this.negative = negative;
         this.position = position;
         this.rating = rating;
-        this.reviewerId = reviewerId;
-        this.companyId = companyId;
     }
 
-    public NewReviewRequestDTO() {
+    public ReviewDTO(Review review) {
+        this.title = review.getTitle();
+        this.positive = review.getPositive();
+        this.negative = review.getNegative();
+        this.position = review.getPosition();
+        this.rating = review.getRating();
+        this.creationDate = new SimpleDateFormat("dd/MM/yyyy").format(review.getCreationDate());
     }
 
     public String getTitle() {
@@ -55,13 +57,5 @@ public class NewReviewRequestDTO {
 
     public double getRating() {
         return rating;
-    }
-
-    public String getReviewerId() {
-        return reviewerId;
-    }
-
-    public String getCompanyId() {
-        return companyId;
     }
 }
