@@ -29,7 +29,10 @@ public class Company {
 
     private boolean activated;
 
-    public Company(String id, String name, String address, String website, String phoneNumber, String email, String description, User owner, boolean activated) {
+    public Company() {
+    }
+
+    public Company(String id, String name, String address, String website, String phoneNumber, String email, String description, User owner) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -39,11 +42,7 @@ public class Company {
         this.description = description;
         this.owner = owner;
         this.rating = 0.0;
-        this.activated = activated;
-    }
-
-    public Company() {
-
+        this.activated = false;
     }
 
     public String getId() {
