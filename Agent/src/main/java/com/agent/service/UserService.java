@@ -31,12 +31,12 @@ public class UserService {
         return repository.findById(id);
     }
 
-    public User save(User user) throws UserAlreadyExistsException {
+    public User addNewUser(User user) throws UserAlreadyExistsException {
         if(repository.findByEmail(user.getEmail()).isPresent())
             throw new UserAlreadyExistsException();
         user.setId(UUID.randomUUID().toString());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActivated(false);
+        user.setActivated(true);
         List<Role> roles = new ArrayList<>();
         roles.add(roleService.findByName("ROLE_USER"));
         user.setRoles(roles);

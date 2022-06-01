@@ -1,17 +1,17 @@
 package com.agent.dto;
 
-public class NewUserResponseDto {
+public class NewUserResponseDTO {
 
     private String id;
 
     private String email;
 
-    public NewUserResponseDto(String id, String email) {
+    public NewUserResponseDTO(String id, String email) {
         this.id = id;
         this.email = email;
     }
 
-    public NewUserResponseDto() {
+    public NewUserResponseDTO() {
     }
 
     public String getId() {
