@@ -1,6 +1,5 @@
 package com.agent.dto;
 
-
 import com.agent.model.Review;
 
 import java.text.SimpleDateFormat;
@@ -24,7 +23,6 @@ public class NewReviewResponseDTO {
     private String companyId;
 
     private String creationDate;
-
 
     public NewReviewResponseDTO() {
     }

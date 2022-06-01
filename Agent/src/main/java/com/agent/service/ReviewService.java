@@ -31,6 +31,8 @@ public class ReviewService {
     public Review addReview(NewReviewRequestDTO newReviewDTO) {
         User reviewer = userService.findById(newReviewDTO.getReviewerId()).orElseThrow(UserNotFoundException::new);
         Company company = companyService.findById(newReviewDTO.getCompanyId()).orElseThrow(CompanyNotFoundException::new);
+        company.setRating(calculateAvgRating(company.getId(), newReviewDTO.getRating()));
+        companyService.save(company);
         Review newReview = new Review(UUID.randomUUID().toString(),
                 newReviewDTO.getTitle(),
                 newReviewDTO.getPositive(),
@@ -39,6 +41,15 @@ public class ReviewService {
                 newReviewDTO.getRating(),
                 reviewer, company, new Date());
         return repository.save(newReview);
+    }
+
+    private double calculateAvgRating(String companyId, double newRating) {
+        List<Review> reviews = getCompanyReviews(companyId);
+        double sum = 0;
+        for(Review review : reviews)
+            sum += review.getRating();
+        sum += newRating;
+        return sum/(double)(reviews.size() + 1);
     }
 
     public List<Review> getCompanyReviews(String id) {

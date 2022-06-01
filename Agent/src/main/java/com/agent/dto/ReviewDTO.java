@@ -2,7 +2,6 @@ package com.agent.dto;
 
 import com.agent.model.Review;
 
-import javax.validation.constraints.NotBlank;
 import java.text.SimpleDateFormat;
 
 public class ReviewDTO {
@@ -57,5 +56,9 @@ public class ReviewDTO {
 
     public double getRating() {
         return rating;
+    }
+
+    public String getCreationDate() {
+        return creationDate;
     }
 }

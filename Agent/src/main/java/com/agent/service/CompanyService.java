@@ -66,4 +66,8 @@ public class CompanyService {
     public Optional<Company> findById(String id) {
         return companyRepository.findById(id);
     }
+
+    public void save(Company company) {
+        companyRepository.save(company);
+    }
 }
