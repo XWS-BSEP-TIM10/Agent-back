@@ -69,11 +69,10 @@ public class CompanyController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<List<GetCompanyResponseDTO>> getCompanyById(@PathVariable String id) {
+    public ResponseEntity<GetCompanyResponseDTO> getCompanyById(@PathVariable String id) {
         if(companyService.findById(id).isPresent()) {
-            List<GetCompanyResponseDTO> companyResponseDTOS = new ArrayList<>();
-            companyResponseDTOS.add(new GetCompanyResponseDTO(companyService.findById(id).get()));
-            return ResponseEntity.ok(companyResponseDTOS);
+            GetCompanyResponseDTO companyResponseDTO = new GetCompanyResponseDTO(companyService.findById(id).get());
+            return ResponseEntity.ok(companyResponseDTO);
         }
         return ResponseEntity.notFound().build();
     }
