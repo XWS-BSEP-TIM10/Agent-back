@@ -5,6 +5,7 @@ import com.agent.dto.CreateCompanyResponseDTO;
 import com.agent.dto.GetCompanyResponseDTO;
 import com.agent.exception.CompanyNotFoundException;
 import com.agent.exception.UserNotFoundException;
+import com.agent.repository.CompanyRepository;
 import com.agent.service.CompanyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -64,5 +66,15 @@ public class CompanyController {
         } catch (UserNotFoundException | CompanyNotFoundException notFoundException) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<List<GetCompanyResponseDTO>> getCompanyById(@PathVariable String id) {
+        if(companyService.findById(id).isPresent()) {
+            List<GetCompanyResponseDTO> companyResponseDTOS = new ArrayList<>();
+            companyResponseDTOS.add(new GetCompanyResponseDTO(companyService.findById(id).get()));
+            return ResponseEntity.ok(companyResponseDTOS);
+        }
+        return ResponseEntity.notFound().build();
     }
 }
