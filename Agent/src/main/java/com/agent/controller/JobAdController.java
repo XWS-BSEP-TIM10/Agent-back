@@ -7,21 +7,13 @@ import com.agent.dto.GetJobAdDTO;
 import com.agent.dto.ShareJobAdDTO;
 import com.agent.exception.CompanyNotFoundException;
 import com.agent.exception.JobAdNotFoundException;
+import com.agent.security.util.TokenUtils;
 import com.agent.service.JobAdService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @RestController
@@ -30,8 +22,11 @@ public class JobAdController {
 
     private final JobAdService jobAdService;
 
-    public JobAdController(JobAdService jobAdService) {
+    private final TokenUtils tokenUtils;
+
+    public JobAdController(JobAdService jobAdService, TokenUtils tokenUtils) {
         this.jobAdService = jobAdService;
+        this.tokenUtils = tokenUtils;
     }
 
     @PostMapping("job-ads")
@@ -66,9 +61,15 @@ public class JobAdController {
     }
 
     @PostMapping("job-ads/{id}")
-    public ResponseEntity<ShareJobAdDTO> shareJobAd(@PathVariable String id) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
-        ShareJobAdDTO sharedJobAd = jobAdService.shareJobAd(id);
-        if(sharedJobAd == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(sharedJobAd);
+    public ResponseEntity<ShareJobAdDTO> shareJobAd(@PathVariable String id, @RequestHeader(value = "Authorization") String jwtToken) {
+        try {
+            String userId = tokenUtils.getUsernameFromToken(jwtToken.substring(7));
+            ShareJobAdDTO sharedJobAd = jobAdService.shareJobAd(id, userId);
+            if (sharedJobAd == null) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(sharedJobAd);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

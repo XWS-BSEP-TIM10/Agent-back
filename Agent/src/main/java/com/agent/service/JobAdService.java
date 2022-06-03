@@ -6,6 +6,7 @@ import com.agent.dto.GetJobAdDTO;
 import com.agent.dto.ShareJobAdDTO;
 import com.agent.exception.CompanyNotFoundException;
 import com.agent.exception.JobAdNotFoundException;
+import com.agent.model.APIToken;
 import com.agent.model.Company;
 import com.agent.model.JobAd;
 import com.agent.model.Requirement;
@@ -21,6 +22,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -42,12 +44,14 @@ public class JobAdService {
     private final JobAdRepository repo;
     private final CompanyService companyService;
     private final RequirementService requirementService;
+    private final APITokenService apiTokenService;
     RestTemplate template = new RestTemplate();
 
-    public JobAdService(JobAdRepository repo, CompanyService companyService, RequirementService requirementService) {
+    public JobAdService(JobAdRepository repo, CompanyService companyService, RequirementService requirementService, APITokenService apiTokenService) {
         this.repo = repo;
         this.companyService = companyService;
         this.requirementService = requirementService;
+        this.apiTokenService = apiTokenService;
     }
 
     public CreateJobAdResponseDTO createJobAd(CreateJobAdRequestDTO createDTO) {
@@ -77,8 +81,26 @@ public class JobAdService {
         return repo.findAllByCompanyId(id).stream().map(GetJobAdDTO::new).toList();
     }
 
-    public ShareJobAdDTO shareJobAd(String id) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+    public ShareJobAdDTO shareJobAd(String id, String userId) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
 
+        RestTemplate restTemplate = createRestTemplate();
+
+        Optional<JobAd> jobAd = repo.findById(id);
+        if(jobAd.isEmpty()) return null;
+        ShareJobAdDTO shareJobAd = new ShareJobAdDTO(jobAd.get());
+
+        HttpHeaders headers = new HttpHeaders();
+        APIToken apiToken = apiTokenService.findByUser(userId);
+        if(apiToken == null) return null;
+        headers.set("DislinktAuth", apiToken.getToken());
+
+        HttpEntity<ShareJobAdDTO> requestEntity =
+                new HttpEntity<>(shareJobAd, headers);
+        return restTemplate.exchange("https://localhost:8678/api/v1/job-ads", HttpMethod.POST, requestEntity, ShareJobAdDTO.class).getBody();
+    }
+
+    @NotNull
+    private RestTemplate createRestTemplate() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
         TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
         SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
@@ -98,19 +120,7 @@ public class JobAdService {
         HttpComponentsClientHttpRequestFactory requestFactory =
                 new HttpComponentsClientHttpRequestFactory(httpClient);
 
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
-
-        Optional<JobAd> jobAd = repo.findById(id);
-        if(jobAd.isEmpty())
-            return null;
-        ShareJobAdDTO shareJobAd = new ShareJobAdDTO(jobAd.get());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("DislinktAuth", "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJzcHJpbmctc2VjdXJpdHktZXhhbXBsZSIsInN1YiI6ImQxMjYwMmZkLWI3YWYtNGRhMS1iMWNhLWJhZDgxNjZkMWZiNSIsInJvbGUiOiJST0xFX0FHRU5UIiwidXNlcklkIjoiZDEyNjAyZmQtYjdhZi00ZGExLWIxY2EtYmFkODE2NmQxZmIyIiwiYXVkIjoid2ViIiwiaWF0IjoxNjU0Mjc0MzM0LCJleHAiOjE2NTYwNzQzMzR9.DDoDuczkf53uMw-lVPtSJDeQZsmC_qR2gBm7548o1g4WX44DdRTrLCQKkaGIP61ONHj9mDNBiQVof7a34tphug");
-
-        HttpEntity<ShareJobAdDTO> requestEntity =
-                new HttpEntity<>(shareJobAd, headers);
-        return restTemplate.exchange("https://localhost:8678/api/v1/job-ads", HttpMethod.POST, requestEntity, ShareJobAdDTO.class).getBody();
+        return new RestTemplate(requestFactory);
     }
 
 
