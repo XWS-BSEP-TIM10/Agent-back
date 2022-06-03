@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @RestController
@@ -63,7 +66,7 @@ public class JobAdController {
     }
 
     @PostMapping("job-ads/{id}")
-    public ResponseEntity<ShareJobAdDTO> shareJobAd(@PathVariable String id) {
+    public ResponseEntity<ShareJobAdDTO> shareJobAd(@PathVariable String id) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         ShareJobAdDTO sharedJobAd = jobAdService.shareJobAd(id);
         if(sharedJobAd == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(sharedJobAd);
