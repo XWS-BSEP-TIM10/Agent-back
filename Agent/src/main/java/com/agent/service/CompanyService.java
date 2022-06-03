@@ -70,4 +70,8 @@ public class CompanyService {
     public void save(Company company) {
         companyRepository.save(company);
     }
+    
+    public String getCompanyIdByUser(String userId) {
+    	return companyRepository.findByOwnerId(userId)!=null?companyRepository.findByOwnerId(userId).getId():"";
+    }
 }

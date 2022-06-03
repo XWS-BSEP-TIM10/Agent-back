@@ -12,4 +12,6 @@ import java.util.List;
 public interface CompanyRepository extends JpaRepository<Company, String> {
     @Query("SELECT c FROM Company c WHERE c.activated = :activated")
     List<Company> getCompanies(@Param("activated") boolean activated);
+    
+    Company findByOwnerId(String userId);
 }

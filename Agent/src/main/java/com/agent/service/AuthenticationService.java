@@ -15,10 +15,13 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     private final TokenUtils tokenUtils;
+    
+    private final CompanyService companyService;
 
-    public AuthenticationService(AuthenticationManager authenticationManager, TokenUtils tokenUtils) {
+    public AuthenticationService(AuthenticationManager authenticationManager, TokenUtils tokenUtils,CompanyService companyService) {
         this.authenticationManager = authenticationManager;
         this.tokenUtils = tokenUtils;
+        this.companyService = companyService;
     }
 
     public TokenDTO login(String email, String password) {
@@ -30,10 +33,10 @@ public class AuthenticationService {
     }
 
     private String getToken(User user) {
-        return tokenUtils.generateToken(user.getRoles().get(0).getName(), user.getId(),false);
+        return tokenUtils.generateToken(user.getRoles().get(0).getName(), user.getId(),false,companyService.getCompanyIdByUser(user.getId()));
     }
 
     private String getRefreshToken(User user) {
-        return tokenUtils.generateToken(user.getRoles().get(0).getName(), user.getId(), true);
+        return tokenUtils.generateToken(user.getRoles().get(0).getName(), user.getId(), true,companyService.getCompanyIdByUser(user.getId()));
     }
 }

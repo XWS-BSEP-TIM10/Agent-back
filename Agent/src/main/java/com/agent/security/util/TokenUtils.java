@@ -55,11 +55,12 @@ public class TokenUtils {
      *
      * @return JWT token
      */
-    public String generateToken(String role, String id, Boolean isRefreshToken) {
+    public String generateToken(String role, String id, Boolean isRefreshToken, String companyId) {
         return Jwts.builder()
                 .setIssuer(APP_NAME)
                 .setSubject(id)
                 .claim("role", role)
+                .claim("companyId", companyId)
                 .setAudience(generateAudience())
                 .setIssuedAt(new Date())
                 .setExpiration(generateExpirationDate(isRefreshToken))
