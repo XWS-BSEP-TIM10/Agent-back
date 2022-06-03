@@ -74,4 +74,9 @@ public class CompanyService {
     public String getCompanyIdByUser(String userId) {
     	return companyRepository.findByOwnerId(userId)!=null?companyRepository.findByOwnerId(userId).getId():"-1";
     }
+
+    public void removeCompany(String id) {
+        Company company = companyRepository.findById(id).orElseThrow(CompanyNotFoundException::new);
+        companyRepository.delete(company);
+    }
 }
