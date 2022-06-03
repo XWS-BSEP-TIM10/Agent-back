@@ -30,5 +30,11 @@ INSERT INTO user_role (ROLE_ID, USER_ID)
 VALUES (3, 'd12602fd-b7af-4da1-b1ca-bad8166d1fb4');
 
 INSERT INTO company (ID, ACTIVATED, ADDRESS, DESCRIPTION, EMAIL, NAME, PHONE_NUMBER, RATING, WEBSITE, OWNER_ID)
-VALUES ('930163c8-995d-41d4-82fc-0c5a35e55d02', true, 'Ulica sajma 32', 'Good Company', 'vega@it.com', 'Vega IT', '+438943893', 0, 'www.vegait.rs', 'd12602fd-b7af-4da1-b1ca-bad8166d1fb3')
+VALUES ('930163c8-995d-41d4-82fc-0c5a35e55d02', true, 'Ulica sajma 32', 'Good Company', 'vega@it.com', 'Vega IT', '+438943893', 0, 'www.vegait.rs', 'd12602fd-b7af-4da1-b1ca-bad8166d1fb3');
+
+INSERT INTO company (ID, ACTIVATED, ADDRESS, DESCRIPTION, EMAIL, NAME, PHONE_NUMBER, RATING, WEBSITE, OWNER_ID)
+VALUES ('930163c8-995d-41d4-82fc-0c5a35e55d03', false, 'Ulica sajma 32', 'Good Company', 'vega1@it.com', 'Vega IT', '+438943893', 0, 'www.vegait.rs', 'd12602fd-b7af-4da1-b1ca-bad8166d1fb3');
+
+INSERT INTO company (ID, ACTIVATED, ADDRESS, DESCRIPTION, EMAIL, NAME, PHONE_NUMBER, RATING, WEBSITE, OWNER_ID)
+VALUES ('930163c8-995d-41d4-82fc-0c5a35e55d04', false, 'Ulica sajma 32', 'Good Company', 'vega2@it.com', 'Vega IT', '+438943893', 0, 'www.vegait.rs', 'd12602fd-b7af-4da1-b1ca-bad8166d1fb3');
 
