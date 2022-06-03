@@ -5,8 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class JobAd {
@@ -24,7 +24,7 @@ public class JobAd {
     private Company company;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
-    private List<Requirement> requirements;
+    private Set<Requirement> requirements = new HashSet<>();
 
     public JobAd(String id, String title, String position, String description, Company company) {
         this.id = id;
@@ -32,7 +32,6 @@ public class JobAd {
         this.position = position;
         this.description = description;
         this.company = company;
-        this.requirements = new ArrayList<>();
     }
 
     public JobAd() {
@@ -58,7 +57,7 @@ public class JobAd {
         return company;
     }
 
-    public List<Requirement> getRequirements() {
+    public Set<Requirement> getRequirements() {
         return requirements;
     }
 }

@@ -4,6 +4,7 @@ package com.agent.controller;
 import com.agent.dto.CreateJobAdRequestDTO;
 import com.agent.dto.CreateJobAdResponseDTO;
 import com.agent.dto.GetJobAdDTO;
+import com.agent.dto.ShareJobAdDTO;
 import com.agent.exception.CompanyNotFoundException;
 import com.agent.exception.JobAdNotFoundException;
 import com.agent.service.JobAdService;
@@ -61,4 +62,10 @@ public class JobAdController {
         }
     }
 
+    @PostMapping("job-ads/{id}")
+    public ResponseEntity<ShareJobAdDTO> shareJobAd(@PathVariable String id) {
+        ShareJobAdDTO sharedJobAd = jobAdService.shareJobAd(id);
+        if(sharedJobAd == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(sharedJobAd);
+    }
 }
