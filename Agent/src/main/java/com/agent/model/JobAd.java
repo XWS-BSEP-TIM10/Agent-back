@@ -1,8 +1,12 @@
 package com.agent.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class JobAd {
@@ -18,6 +22,9 @@ public class JobAd {
 
     @ManyToOne
     private Company company;
+
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    private Set<Requirement> requirements = new HashSet<>();
 
     public JobAd(String id, String title, String position, String description, Company company) {
         this.id = id;
@@ -48,5 +55,9 @@ public class JobAd {
 
     public Company getCompany() {
         return company;
+    }
+
+    public Set<Requirement> getRequirements() {
+        return requirements;
     }
 }
