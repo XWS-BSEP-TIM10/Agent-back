@@ -1,13 +1,19 @@
 package com.agent.controller;
 
-import com.agent.dto.*;
+import com.agent.dto.InterviewDTO;
+import com.agent.dto.NewInterviewRequestDTO;
+import com.agent.dto.NewInterviewResponseDTO;
 import com.agent.exception.CompanyNotFoundException;
 import com.agent.exception.UserNotFoundException;
 import com.agent.model.Interview;
-import com.agent.model.Review;
 import com.agent.service.InterviewService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -27,7 +33,7 @@ public class InterviewController {
     public ResponseEntity<NewInterviewResponseDTO> addInterview(@Valid @RequestBody NewInterviewRequestDTO newInterviewDTO) {
         try {
             Interview interview = interviewService.addInterview(newInterviewDTO);
-            if(interview == null)
+            if (interview == null)
                 return ResponseEntity.internalServerError().build();
             return ResponseEntity.ok(new NewInterviewResponseDTO(interview));
         } catch (UserNotFoundException | CompanyNotFoundException exception) {
@@ -44,7 +50,7 @@ public class InterviewController {
             for (Interview interview : interviews)
                 dtos.add(new InterviewDTO(interview));
             return ResponseEntity.ok(dtos);
-        } catch (CompanyNotFoundException exception){
+        } catch (CompanyNotFoundException exception) {
             exception.printStackTrace();
             return ResponseEntity.notFound().build();
         }
