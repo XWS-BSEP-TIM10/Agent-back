@@ -8,12 +8,8 @@ import com.agent.exception.UserNotFoundException;
 import com.agent.model.Interview;
 import com.agent.service.InterviewService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -29,6 +25,7 @@ public class InterviewController {
         this.interviewService = interviewService;
     }
 
+    @PreAuthorize("hasAuthority('CREATE_INTERVIEW_PERMISSION')")
     @PostMapping("interviews")
     public ResponseEntity<NewInterviewResponseDTO> addInterview(@Valid @RequestBody NewInterviewRequestDTO newInterviewDTO) {
         try {
@@ -43,7 +40,7 @@ public class InterviewController {
     }
 
     @GetMapping("companies/{id}/interviews")
-    public ResponseEntity<List<InterviewDTO>> getCompanyReview(@PathVariable String id) {
+    public ResponseEntity<List<InterviewDTO>> getCompanyReviews(@PathVariable String id) {
         try {
             List<Interview> interviews = interviewService.getCompanyInterviews(id);
             List<InterviewDTO> dtos = new ArrayList<>();

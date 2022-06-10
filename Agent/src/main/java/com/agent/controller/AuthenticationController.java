@@ -23,7 +23,6 @@ public class AuthenticationController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO) {
-
         try {
             TokenDTO tokenDTO = authenticationService.login(loginDTO.getEmail(), loginDTO.getPassword());
             return ResponseEntity.ok(tokenDTO);

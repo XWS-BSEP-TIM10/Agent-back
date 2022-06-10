@@ -8,6 +8,7 @@ import com.agent.exception.UserNotFoundException;
 import com.agent.model.Review;
 import com.agent.service.ReviewService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -24,6 +25,7 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
+    @PreAuthorize("hasAuthority('CREATE_REVIEW_PERMISSION')")
     @PostMapping("reviews")
     public ResponseEntity<NewReviewResponseDTO> addReview(@Valid @RequestBody NewReviewRequestDTO newReviewDTO) {
         try {

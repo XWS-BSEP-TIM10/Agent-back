@@ -11,6 +11,7 @@ import com.agent.security.util.TokenUtils;
 import com.agent.service.JobAdService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,6 +30,7 @@ public class JobAdController {
         this.tokenUtils = tokenUtils;
     }
 
+    @PreAuthorize("hasAuthority('CREATE_JOB_AD_PERMISSION')")
     @PostMapping("job-ads")
     public ResponseEntity<CreateJobAdResponseDTO> addJobAd(@Valid @RequestBody CreateJobAdRequestDTO createDTO) {
         try {
@@ -49,7 +51,7 @@ public class JobAdController {
         }
     }
 
-
+    @PreAuthorize("hasAuthority('DELETE_JOB_AD_PERMISSION')")
     @DeleteMapping("job-ads/{id}")
     public ResponseEntity<HttpStatus> deleteJobAd(@PathVariable String id) {
         try {
@@ -60,6 +62,7 @@ public class JobAdController {
         }
     }
 
+    @PreAuthorize("hasAuthority('SHARE_JOB_AD_PERMISSION')")
     @PostMapping("job-ads/{id}")
     public ResponseEntity<ShareJobAdDTO> shareJobAd(@PathVariable String id, @RequestHeader(value = "Authorization") String jwtToken) {
         try {

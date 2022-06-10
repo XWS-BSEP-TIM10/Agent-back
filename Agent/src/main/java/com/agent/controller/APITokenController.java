@@ -2,11 +2,11 @@ package com.agent.controller;
 
 import com.agent.dto.APITokenRequestDTO;
 import com.agent.dto.APITokenResponseDTO;
-import com.agent.exception.CompanyNotFoundException;
 import com.agent.model.APIToken;
 import com.agent.security.util.TokenUtils;
 import com.agent.service.APITokenService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -24,6 +24,7 @@ public class APITokenController {
         this.tokenUtils = tokenUtils;
     }
 
+    @PreAuthorize("hasAuthority('ADD_API_TOKEN_PERMISSION')")
     @PostMapping
     public ResponseEntity<APITokenResponseDTO> addAPIToken(@Valid @RequestBody APITokenRequestDTO apiTokenDTO, @RequestHeader(value = "Authorization") String jwtToken) {
         String userId = tokenUtils.getUsernameFromToken(jwtToken.substring(7));

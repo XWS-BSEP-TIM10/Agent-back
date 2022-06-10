@@ -8,6 +8,7 @@ import com.agent.exception.UserNotFoundException;
 import com.agent.service.CompanyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,6 +24,7 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
+    @PreAuthorize("hasAuthority('CREATE_COMPANY_PERMISSION')")
     @PostMapping()
     public ResponseEntity<CreateCompanyResponseDTO> addCompany(@Valid @RequestBody CreateCompanyRequestDTO createDTO) {
         try {
@@ -33,6 +35,7 @@ public class CompanyController {
         }
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_COMPANY_PERMISSION')")
     @PutMapping("{id}")
     public ResponseEntity<CreateCompanyResponseDTO> updateCompany(@Valid @RequestBody CreateCompanyRequestDTO updateDTO, @PathVariable String id) {
         try {
@@ -49,6 +52,7 @@ public class CompanyController {
         return ResponseEntity.ok(companyResponseDTOS);
     }
 
+    @PreAuthorize("hasAuthority('ACTIVATE_COMPANY_PERMISSION')")
     @PutMapping("{id}/activate")
     public ResponseEntity<HttpStatus> activateCompany(@PathVariable String id) {
         try {
@@ -59,6 +63,7 @@ public class CompanyController {
         }
     }
 
+    @PreAuthorize("hasAuthority('REMOVE_COMPANY_PERMISSION')")
     @DeleteMapping("{id}/remove")
     public ResponseEntity<HttpStatus> removeCompany(@PathVariable String id) {
         try {
