@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     // Funkcija koja na osnovu username-a iz baze vraca objekat User-a
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findById(username);
+        Optional<User> user = userRepository.findByEmail(username);
         if (user.isEmpty()) {
             throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
         } else {
