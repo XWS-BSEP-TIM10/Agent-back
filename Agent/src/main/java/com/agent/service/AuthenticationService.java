@@ -33,10 +33,10 @@ public class AuthenticationService {
     }
 
     private String getToken(User user) {
-        return tokenUtils.generateToken(user.getRoles().get(0).getName(), user.getUsername(),false,companyService.getCompanyIdByUser(user.getId()));
+        return tokenUtils.generateToken(user.getRoles().get(0).getName(), user.getUsername(), user.getId(),false,companyService.getCompanyIdByUser(user.getId()));
     }
 
     private String getRefreshToken(User user) {
-        return tokenUtils.generateToken(user.getRoles().get(0).getName(), user.getUsername(), true,companyService.getCompanyIdByUser(user.getId()));
+        return tokenUtils.generateToken(user.getRoles().get(0).getName(), user.getUsername(), user.getId(),true,companyService.getCompanyIdByUser(user.getId()));
     }
 }
