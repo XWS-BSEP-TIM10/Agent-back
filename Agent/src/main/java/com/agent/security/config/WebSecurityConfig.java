@@ -79,7 +79,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint).and()
 
                 // svim korisnicima dopusti da pristupe sledecim putanjama:
-                .authorizeRequests().antMatchers("/api/v1/*").permitAll()        // /auth/**
+                .authorizeRequests()
+//                .antMatchers("/api/v1/*").permitAll()        // /auth/**
                 .antMatchers("/h2-console/**").permitAll()    // /h2-console/** ako se koristi H2 baza)
                 .antMatchers("/api/foo").permitAll()        // /api/foo
 
@@ -111,7 +112,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/users/*");
         web.ignoring().antMatchers(HttpMethod.PUT, "/api/v1/users/*");
         web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/auth/*");
-        web.ignoring().antMatchers("*", "/api/v1/**");
+//        web.ignoring().antMatchers("*", "/api/v1/**");
 
 
         // Ovim smo dozvolili pristup statickim resursima aplikacije
