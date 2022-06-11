@@ -119,7 +119,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
                 "/**/*.css", "/**/*.js", "/api/v1/companies", "/api/v1/companies/{id}","/api/v1/companies/{id}/interviews"
                 ,"/api/v1/companies/{id}/job-ads", "/api/v1/companies/{id}/reviews", "/api/v1/companies/{id}/salaries",
-                "/api/v1/auth/confirm/{token}", "/api/v1/auth/recover*", "/api/v1/auth/checkToken/{token}");
+                "/api/v1/auth/confirm/{token}", "/api/v1/auth/recover*", "/api/v1/auth/checkToken/{token}",
+                "/api/v1/auth/password-less*", "/api/v1/auth/login/password-less/{token}");
     }
 
 }

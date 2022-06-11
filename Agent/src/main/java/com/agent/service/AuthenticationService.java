@@ -1,7 +1,6 @@
 package com.agent.service;
 
 import com.agent.dto.TokenDTO;
-import com.agent.exception.RepeatedPasswordNotMatchingException;
 import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
 import com.agent.exception.UserNotFoundException;
@@ -97,15 +96,42 @@ public class AuthenticationService {
     }
 
     public void changePasswordRecovery(String newPassword, String token) throws TokenExpiredException, UserNotFoundException {
-        VerificationToken verificationToken = verificationTokenService.findVerificationTokenByToken(token);
-        if (verificationToken == null || getDifferenceInMinutes(verificationToken) >= RECOVERY_TOKEN_EXPIRES)
-            throw new TokenExpiredException();
-
+        VerificationToken verificationToken = getVerificationToken(token);
         Optional<User> user = userService.findByEmail(verificationToken.getUser().getEmail());
         if(user.isEmpty())
             throw new UserNotFoundException();
-
         userService.changePassword(user.get(), newPassword);
         verificationTokenService.delete(verificationToken);
+    }
+
+    public void generatePasswordLessToken(String email) {
+        Optional<User> user = userService.findByEmail(email);
+        if (user.isEmpty())
+            throw new UserNotFoundException();
+        VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user.get());
+        emailService.sendEmail(email, "Passwordless login", "https://localhost:4201/login/password-less/" + verificationToken.getToken() + " Click on this link to sign in");
+
+    }
+
+    public TokenDTO passwordLessLogin(String token) {
+
+        VerificationToken verificationToken = getVerificationToken(token);
+        Optional<User> user = userService.findByEmail(verificationToken.getUser().getEmail());
+        if(user.isEmpty())
+            throw new UserNotFoundException();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                user.get().getUsername(), null, user.get().getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        verificationTokenService.delete(verificationToken);
+        return new TokenDTO(getToken(user.get()), getRefreshToken(user.get()));
+    }
+
+    public VerificationToken getVerificationToken(String token) {
+        VerificationToken verificationToken = verificationTokenService.findVerificationTokenByToken(token);
+        if (verificationToken == null)
+            throw new TokenNotFoundException();
+        if(getDifferenceInMinutes(verificationToken) >= RECOVERY_TOKEN_EXPIRES)
+            throw new TokenExpiredException();
+        return verificationToken;
     }
 }

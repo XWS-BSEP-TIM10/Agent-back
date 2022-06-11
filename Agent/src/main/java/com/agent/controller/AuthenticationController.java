@@ -75,4 +75,27 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body("Token expired");
         }
     }
+
+    @GetMapping(value = "/password-less")
+    public ResponseEntity<?> passwordLessToken(@Email String email) {
+        try {
+            authenticationService.generatePasswordLessToken(email);
+            return ResponseEntity.ok().build();
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping(value = "/login/password-less/{token}")
+    public ResponseEntity<?> passwordLessLogin(@PathVariable String token) {
+        try {
+            TokenDTO tokens = authenticationService.passwordLessLogin(token);
+            return ResponseEntity.ok(tokens);
+        } catch (TokenExpiredException ex) {
+            return ResponseEntity.badRequest().body("Token expired");
+        } catch (TokenNotFoundException | UserNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
 }
