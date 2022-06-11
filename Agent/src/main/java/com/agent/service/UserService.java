@@ -1,10 +1,15 @@
 package com.agent.service;
 
+import com.agent.dto.ChangePasswordDTO;
 import com.agent.exception.UserAlreadyExistsException;
+import com.agent.exception.UserNotFoundException;
+import com.agent.exception.WrongPasswordException;
 import com.agent.model.Role;
 import com.agent.model.User;
 import com.agent.model.VerificationToken;
 import com.agent.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +76,17 @@ public class UserService {
         return repository.findByEmail(email);
     }
 
-    public void changePassword(User user, String newPassword) {
+    public User changePassword(User user, String newPassword) {
         user.setPassword(passwordEncoder.encode(newPassword));
+        return repository.save(user);
+    }
+
+    public User changePassword(ChangePasswordDTO changePasswordDTO) throws UserNotFoundException, WrongPasswordException {
+        Optional<User> user = findByEmail(changePasswordDTO.getEmail());
+        if(user.isEmpty())
+            throw new UserNotFoundException();
+        if(!BCrypt.checkpw(changePasswordDTO.getOldPassword(), user.get().getPassword()))
+            throw new WrongPasswordException();
+        return changePassword(user.get(), changePasswordDTO.getNewPassword());
     }
 }

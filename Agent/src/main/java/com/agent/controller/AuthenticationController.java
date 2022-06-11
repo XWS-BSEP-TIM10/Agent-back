@@ -3,7 +3,6 @@ package com.agent.controller;
 import com.agent.dto.LoginDTO;
 import com.agent.dto.PasswordDto;
 import com.agent.dto.TokenDTO;
-import com.agent.exception.RepeatedPasswordNotMatchingException;
 import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
 import com.agent.exception.UserNotFoundException;

@@ -1,20 +1,18 @@
 package com.agent.controller;
 
+import com.agent.dto.ChangePasswordDTO;
 import com.agent.dto.NewUserRequestDTO;
 import com.agent.dto.NewUserResponseDTO;
 import com.agent.exception.UserAlreadyExistsException;
+import com.agent.exception.UserNotFoundException;
+import com.agent.exception.WrongPasswordException;
 import com.agent.model.User;
 import com.agent.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -53,5 +51,19 @@ public class UserController {
             errors.put(fieldName, errorMessage);
         });
         return errors;
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordDTO changePasswordDTO) {
+        try {
+            User changedUser = userService.changePassword(changePasswordDTO);
+            if(changedUser == null)
+                return ResponseEntity.internalServerError().build();
+            return ResponseEntity.ok().build();
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (WrongPasswordException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
