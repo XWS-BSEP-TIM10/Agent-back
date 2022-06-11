@@ -1,20 +1,19 @@
 package com.agent.controller;
 
 import com.agent.dto.LoginDTO;
+import com.agent.dto.PasswordDto;
 import com.agent.dto.TokenDTO;
+import com.agent.exception.RepeatedPasswordNotMatchingException;
 import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
+import com.agent.exception.UserNotFoundException;
 import com.agent.service.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 
 @RestController
 @RequestMapping(value = "/api/v1/auth")
@@ -46,6 +45,34 @@ public class AuthenticationController {
         } catch (TokenNotFoundException ex) {
             return ResponseEntity.notFound().build();
         }
+    }
 
+    @GetMapping(value = "/recover")
+    public ResponseEntity<?> recoverAccount(@Email String email) {
+        try {
+            authenticationService.recoverAccount(email);
+            return ResponseEntity.ok().build();
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/checkToken/{token}")
+    public ResponseEntity<?> checkToken(@PathVariable String token) {
+        boolean valid = authenticationService.checkToken(token);
+        if (!valid) return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping(value = "/recover/changePassword/{token}")
+    public ResponseEntity<?> changePasswordRecovery(@PathVariable String token, @RequestBody PasswordDto passwordDto) {
+        if(!passwordDto.getNewPassword().equals(passwordDto.getRepeatedNewPassword()))
+            return ResponseEntity.badRequest().body("Passwords not matching");
+        try {
+            authenticationService.changePasswordRecovery(passwordDto.getNewPassword(), token);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Token expired");
+        }
     }
 }

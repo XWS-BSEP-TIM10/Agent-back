@@ -66,4 +66,12 @@ public class UserService {
         user.setActivated(true);
         repository.save(user);
     }
+
+    public Optional<User> findByEmail(String email) {
+        return repository.findByEmail(email);
+    }
+
+    public void changePassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+    }
 }
