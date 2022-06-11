@@ -7,6 +7,7 @@ import com.agent.exception.CompanyNotFoundException;
 import com.agent.exception.UserNotFoundException;
 import com.agent.service.SalaryService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,7 @@ public class SalaryController {
         this.salaryService = salaryService;
     }
 
+    @PreAuthorize("hasAuthority('CREATE_SALARY_PERMISSION')")
     @PostMapping("salaries")
     public ResponseEntity<CreateSalaryResponseDTO> createSalary(@Valid @RequestBody CreateSalaryResponseDTO createDTO) {
         try {

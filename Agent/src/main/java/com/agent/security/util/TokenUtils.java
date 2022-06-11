@@ -55,12 +55,13 @@ public class TokenUtils {
      *
      * @return JWT token
      */
-    public String generateToken(String role, String id, Boolean isRefreshToken, String companyId) {
+    public String generateToken(String role, String username, String id, Boolean isRefreshToken, String companyId) {
         return Jwts.builder()
                 .setIssuer(APP_NAME)
-                .setSubject(id)
+                .setSubject(username)
                 .claim("role", role)
                 .claim("companyId", companyId)
+                .claim("userId", id)
                 .setAudience(generateAudience())
                 .setIssuedAt(new Date())
                 .setExpiration(generateExpirationDate(isRefreshToken))
@@ -249,7 +250,7 @@ public class TokenUtils {
 
         // Token je validan kada:
         return (username != null // korisnicko ime nije null
-                && username.equals(userDetails.getUsername())); // korisnicko ime iz tokena se podudara sa korisnickom imenom koje pise u bazi
+                && username.equals(user.getUsername())); // korisnicko ime iz tokena se podudara sa korisnickom imenom koje pise u bazi
         // nakon kreiranja tokena korisnik nije menjao svoju lozinku
     }
 

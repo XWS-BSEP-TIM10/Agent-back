@@ -3,7 +3,14 @@ package com.agent.model;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -117,7 +124,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<Permission> permissions = new HashSet<Permission>();
-        for(Role role : this.roles){
+        for (Role role : this.roles) {
             permissions.addAll(role.getPermission());
         }
         return permissions;

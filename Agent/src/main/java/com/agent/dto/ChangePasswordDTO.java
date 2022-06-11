@@ -10,34 +10,43 @@ import javax.validation.constraints.NotBlank;
 
 @FieldMatch(first = "password", second = "confirmPassword", message = "The password fields must match")
 @PasswordContainsEmail(password = "password", email = "email", message = "The password can not contain email")
-public class NewUserRequestDTO {
+public class ChangePasswordDTO {
 
     @NotBlank
-    @Email(message = "Email is not valid")
+    @Email
     private String email;
 
-    @NotBlank(message = "Password is mandatory")
+    @NotBlank(message = "Old password is mandatory")
+    private String oldPassword;
+
+    @NotBlank(message = "New password is mandatory")
     @ValidPassword
     @BlackList
-    private String password;
+    private String newPassword;
 
     @NotBlank(message = "Confirm password is mandatory")
     private String confirmPassword;
 
-    public NewUserRequestDTO(String email, String password) {
-        this.email = email;
-        this.password = password;
+    public ChangePasswordDTO() {
     }
 
-    public NewUserRequestDTO() {
+    public ChangePasswordDTO(String email, String oldPassword, String newPassword, String confirmPassword) {
+        this.email = email;
+        this.oldPassword = oldPassword;
+        this.newPassword = newPassword;
+        this.confirmPassword = confirmPassword;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getOldPassword() {
+        return oldPassword;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
     }
 
     public String getConfirmPassword() {

@@ -1,7 +1,6 @@
 INSERT INTO users (ID, PASSWORD, EMAIL, ACTIVATED)
 VALUES ('d12602fd-b7af-4da1-b1ca-bad8166d1fb2', '$2a$10$28MUwyYgna28OIxoUnE7VOpjby0JRJUU0WQV0UZdMX5XA46XAvBCK', 'jankovicapoteka@gmail.com', true);
 
-
 INSERT INTO users (ID, PASSWORD, EMAIL, ACTIVATED)
 VALUES ('d12602fd-b7af-4da1-b1ca-bad8166d1fb3', '$2a$10$28MUwyYgna28OIxoUnE7VOpjby0JRJUU0WQV0UZdMX5XA46XAvBCK', 'peraperic4200@gmail.com', true);
 
@@ -19,12 +18,78 @@ INSERT INTO role (ID, NAME)
 VALUES (3, 'ROLE_ADMIN');
 
 
+INSERT INTO permission(id, name)
+VALUES (1, 'ADD_API_TOKEN_PERMISSION');
+
+INSERT INTO permission(id, name)
+VALUES (2, 'CREATE_COMPANY_PERMISSION');
+
+INSERT INTO permission(id, name)
+VALUES (3, 'UPDATE_COMPANY_PERMISSION');
+
+INSERT INTO permission(id, name)
+VALUES (4, 'ACTIVATE_COMPANY_PERMISSION');
+
+INSERT INTO permission(id, name)
+VALUES (5, 'REMOVE_COMPANY_PERMISSION');
+
+INSERT INTO permission(id, name)
+VALUES (6, 'CREATE_INTERVIEW_PERMISSION');
+
+INSERT INTO permission(id, name)
+VALUES (7, 'CREATE_JOB_AD_PERMISSION');
+
+INSERT INTO permission(id, name)
+VALUES (8, 'DELETE_JOB_AD_PERMISSION');
+
+INSERT INTO permission(id, name)
+VALUES (9, 'SHARE_JOB_AD_PERMISSION');
+
+INSERT INTO permission(id, name)
+VALUES (10, 'CREATE_REVIEW_PERMISSION');
+
+INSERT INTO permission(id, name)
+VALUES (11, 'CREATE_SALARY_PERMISSION');
+
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (1, 1);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (1, 2);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (2, 3);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (3, 4);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (3, 5);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (1, 6);
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (2, 7);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (2, 8);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (2, 9);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (1, 10);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (1, 11);
+
+
 INSERT INTO user_role (ROLE_ID, USER_ID)
 VALUES (1, 'd12602fd-b7af-4da1-b1ca-bad8166d1fb2');
 
 INSERT INTO user_role (ROLE_ID, USER_ID)
 VALUES (2, 'd12602fd-b7af-4da1-b1ca-bad8166d1fb3');
-
 
 INSERT INTO user_role (ROLE_ID, USER_ID)
 VALUES (3, 'd12602fd-b7af-4da1-b1ca-bad8166d1fb4');
