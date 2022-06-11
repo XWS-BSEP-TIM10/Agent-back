@@ -57,7 +57,7 @@ public class AuthenticationService {
     }
 
 
-    public String verifyUserAccount(String token) {
+    public void verifyUserAccount(String token) {
         VerificationToken verificationToken = verificationTokenService.findVerificationTokenByToken(token);
         if (verificationToken == null) {
             throw new TokenNotFoundException();
@@ -68,7 +68,6 @@ public class AuthenticationService {
 
         if (getDifferenceInMinutes(verificationToken) < REGISTRATION_TOKEN_EXPIRES) {
             userService.activateUser(user);
-            return user.getUsername();
         } else {
             throw new TokenExpiredException();
         }

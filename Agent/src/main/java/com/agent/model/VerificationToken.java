@@ -25,6 +25,9 @@ public class VerificationToken {
     @OneToOne
     private User user;
 
+    public VerificationToken() {
+    }
+
     public VerificationToken(User user) {
         super();
         this.token = UUID.randomUUID().toString();

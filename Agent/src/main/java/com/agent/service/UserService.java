@@ -44,7 +44,7 @@ public class UserService {
             throw new UserAlreadyExistsException();
         user.setId(UUID.randomUUID().toString());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActivated(true);
+        user.setActivated(false);
         List<Role> roles = new ArrayList<>();
         roles.add(roleService.findByName("ROLE_USER"));
         user.setRoles(roles);
