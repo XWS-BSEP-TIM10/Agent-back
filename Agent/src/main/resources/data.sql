@@ -53,7 +53,7 @@ VALUES (11, 'CREATE_SALARY_PERMISSION');
 
 
 INSERT INTO roles_permissions(role_id, permission_id)
-VALUES (1, 1);
+VALUES (2, 1);
 
 INSERT INTO roles_permissions(role_id, permission_id)
 VALUES (1, 2);
@@ -69,6 +69,7 @@ VALUES (3, 5);
 
 INSERT INTO roles_permissions(role_id, permission_id)
 VALUES (1, 6);
+
 INSERT INTO roles_permissions(role_id, permission_id)
 VALUES (2, 7);
 
