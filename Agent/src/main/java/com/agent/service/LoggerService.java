@@ -170,4 +170,8 @@ public class LoggerService {
     public void passwordChangingFailed(String message, String email) {
         logger.warn("Password changing failed: {}. Email: {}", message, email);
     }
+
+    public void unauthorizedAccess(String method, String path, String ip) {
+        logger.warn("Unauthorized access to {}: {}. From: {}", method, path, ip);
+    }
 }
