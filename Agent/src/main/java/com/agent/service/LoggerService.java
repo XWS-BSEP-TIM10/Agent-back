@@ -51,6 +51,10 @@ public class LoggerService {
         logger.info("Generated passwordless login token successfully. Email: {}", email);
     }
 
+    public void generatePasswordlessLoginFailed(String message, String email) {
+        logger.info("Generated passwordless login token failed: {}. Email: {}", message, email);
+    }
+
     public void passwordlessLoginSuccess(String email, String ip) {
         logger.info("Passwordless login successful. Email: {}. From: {}", email, ip);
     }

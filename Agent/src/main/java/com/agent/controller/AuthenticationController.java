@@ -11,13 +11,7 @@ import com.agent.service.LoggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -94,20 +88,21 @@ public class AuthenticationController {
     }
 
     @GetMapping(value = "/password-less")
-    public ResponseEntity<?> passwordLessToken(@Email String email) {
+    public ResponseEntity<?> passwordlessToken(@RequestParam @Valid @Email String email) {
         try {
-            authenticationService.generatePasswordLessToken(email);
+            authenticationService.generatePasswordlessToken(email);
             loggerService.generatePasswordlessLogin(email);
             return ResponseEntity.ok().build();
         } catch (UserNotFoundException ex) {
+            loggerService.generatePasswordlessLoginFailed(ex.getMessage(), email);
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping(value = "/login/password-less/{token}")
-    public ResponseEntity<?> passwordLessLogin(@PathVariable String token, HttpServletRequest request) {
+    public ResponseEntity<?> passwordlessLogin(@PathVariable String token, HttpServletRequest request) {
         try {
-            TokenDTO tokens = authenticationService.passwordLessLogin(token);
+            TokenDTO tokens = authenticationService.passwordlessLogin(token);
             loggerService.passwordlessLoginSuccess(SecurityContextHolder.getContext().getAuthentication().getName(), request.getRemoteAddr());
             return ResponseEntity.ok(tokens);
         } catch (TokenExpiredException ex) {
@@ -117,6 +112,5 @@ public class AuthenticationController {
             loggerService.passwordlessLoginFailed(request.getRemoteAddr());
             return ResponseEntity.notFound().build();
         }
-
     }
 }

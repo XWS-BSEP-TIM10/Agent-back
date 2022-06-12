@@ -111,7 +111,7 @@ public class AuthenticationService {
         verificationTokenService.delete(verificationToken);
     }
 
-    public void generatePasswordLessToken(String email) {
+    public void generatePasswordlessToken(String email) {
         Optional<User> user = userService.findByEmail(email);
         if (user.isEmpty())
             throw new UserNotFoundException();
@@ -120,7 +120,7 @@ public class AuthenticationService {
 
     }
 
-    public TokenDTO passwordLessLogin(String token) {
+    public TokenDTO passwordlessLogin(String token) {
 
         VerificationToken verificationToken = getVerificationToken(token);
         Optional<User> user = userService.findByEmail(verificationToken.getUser().getEmail());
