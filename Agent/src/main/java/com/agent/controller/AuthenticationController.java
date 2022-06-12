@@ -7,9 +7,16 @@ import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
 import com.agent.exception.UserNotFoundException;
 import com.agent.service.AuthenticationService;
+import com.agent.service.LoggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
@@ -19,17 +26,21 @@ import javax.validation.constraints.Email;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final LoggerService loggerService;
 
     public AuthenticationController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
+        this.loggerService = new LoggerService(this.getClass());
     }
 
     @PostMapping(value = "/login")
     public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO) {
         try {
             TokenDTO tokenDTO = authenticationService.login(loginDTO.getEmail(), loginDTO.getPassword());
+            loggerService.loginSuccess(loginDTO.getEmail());
             return ResponseEntity.ok(tokenDTO);
         } catch (Exception ex) {
+            loggerService.loginFailed(loginDTO.getEmail());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -65,7 +76,7 @@ public class AuthenticationController {
 
     @PutMapping(value = "/recover/changePassword/{token}")
     public ResponseEntity<?> changePasswordRecovery(@PathVariable String token, @RequestBody PasswordDto passwordDto) {
-        if(!passwordDto.getNewPassword().equals(passwordDto.getRepeatedNewPassword()))
+        if (!passwordDto.getNewPassword().equals(passwordDto.getRepeatedNewPassword()))
             return ResponseEntity.badRequest().body("Passwords not matching");
         try {
             authenticationService.changePasswordRecovery(passwordDto.getNewPassword(), token);
