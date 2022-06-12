@@ -4,6 +4,7 @@ import com.agent.dto.CreateJobAdRequestDTO;
 import com.agent.dto.CreateJobAdResponseDTO;
 import com.agent.dto.GetJobAdDTO;
 import com.agent.dto.ShareJobAdDTO;
+import com.agent.exception.APITokenNotFoundException;
 import com.agent.exception.CompanyNotFoundException;
 import com.agent.exception.JobAdNotFoundException;
 import com.agent.model.APIToken;
@@ -45,7 +46,6 @@ public class JobAdService {
     private final CompanyService companyService;
     private final RequirementService requirementService;
     private final APITokenService apiTokenService;
-    RestTemplate template = new RestTemplate();
 
     public JobAdService(JobAdRepository repo, CompanyService companyService, RequirementService requirementService, APITokenService apiTokenService) {
         this.repo = repo;
@@ -81,7 +81,7 @@ public class JobAdService {
         return repo.findAllByCompanyId(id).stream().map(GetJobAdDTO::new).toList();
     }
 
-    public ShareJobAdDTO shareJobAd(String id, String userId) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+    public ShareJobAdDTO shareJobAd(String id, String userId) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException, APITokenNotFoundException {
 
         RestTemplate restTemplate = createRestTemplate();
 
@@ -91,7 +91,8 @@ public class JobAdService {
 
         HttpHeaders headers = new HttpHeaders();
         APIToken apiToken = apiTokenService.findByUser(userId);
-        if(apiToken == null) return null;
+        if(apiToken == null)
+            throw new APITokenNotFoundException();
         headers.set("DislinktAuth", apiToken.getToken());
 
         HttpEntity<ShareJobAdDTO> requestEntity =

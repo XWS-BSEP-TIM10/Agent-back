@@ -7,10 +7,13 @@ import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
 import com.agent.exception.UserNotFoundException;
 import com.agent.service.AuthenticationService;
+import com.agent.service.LoggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 
@@ -19,17 +22,21 @@ import javax.validation.constraints.Email;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final LoggerService loggerService;
 
     public AuthenticationController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
+        this.loggerService = new LoggerService(this.getClass());
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO) {
+    public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO, HttpServletRequest request) {
         try {
             TokenDTO tokenDTO = authenticationService.login(loginDTO.getEmail(), loginDTO.getPassword());
+            loggerService.loginSuccess(loginDTO.getEmail(), request.getRemoteAddr());
             return ResponseEntity.ok(tokenDTO);
         } catch (Exception ex) {
+            loggerService.loginFailed(loginDTO.getEmail(), request.getRemoteAddr());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -50,8 +57,10 @@ public class AuthenticationController {
     public ResponseEntity<?> recoverAccount(@Email String email) {
         try {
             authenticationService.recoverAccount(email);
+            loggerService.accountRecovered(email);
             return ResponseEntity.ok().build();
         } catch (UserNotFoundException ex) {
+            loggerService.accountRecoverFailedUserNotFound(email);
             return ResponseEntity.notFound().build();
         }
     }
@@ -59,16 +68,19 @@ public class AuthenticationController {
     @GetMapping("/checkToken/{token}")
     public ResponseEntity<?> checkToken(@PathVariable String token) {
         boolean valid = authenticationService.checkToken(token);
-        if (!valid) return ResponseEntity.badRequest().build();
+        if (!valid) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok().build();
     }
 
     @PutMapping(value = "/recover/changePassword/{token}")
     public ResponseEntity<?> changePasswordRecovery(@PathVariable String token, @RequestBody PasswordDto passwordDto) {
-        if(!passwordDto.getNewPassword().equals(passwordDto.getRepeatedNewPassword()))
+        if (!passwordDto.getNewPassword().equals(passwordDto.getRepeatedNewPassword()))
             return ResponseEntity.badRequest().body("Passwords not matching");
         try {
             authenticationService.changePasswordRecovery(passwordDto.getNewPassword(), token);
+
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Token expired");
@@ -76,25 +88,29 @@ public class AuthenticationController {
     }
 
     @GetMapping(value = "/password-less")
-    public ResponseEntity<?> passwordLessToken(@Email String email) {
+    public ResponseEntity<?> passwordlessToken(@RequestParam @Valid @Email String email) {
         try {
-            authenticationService.generatePasswordLessToken(email);
+            authenticationService.generatePasswordlessToken(email);
+            loggerService.generatePasswordlessLogin(email);
             return ResponseEntity.ok().build();
         } catch (UserNotFoundException ex) {
+            loggerService.generatePasswordlessLoginFailed(ex.getMessage(), email);
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping(value = "/login/password-less/{token}")
-    public ResponseEntity<?> passwordLessLogin(@PathVariable String token) {
+    public ResponseEntity<?> passwordlessLogin(@PathVariable String token, HttpServletRequest request) {
         try {
-            TokenDTO tokens = authenticationService.passwordLessLogin(token);
+            TokenDTO tokens = authenticationService.passwordlessLogin(token);
+            loggerService.passwordlessLoginSuccess(SecurityContextHolder.getContext().getAuthentication().getName(), request.getRemoteAddr());
             return ResponseEntity.ok(tokens);
         } catch (TokenExpiredException ex) {
+            loggerService.passwordlessLoginFailed(request.getRemoteAddr());
             return ResponseEntity.badRequest().body("Token expired");
         } catch (TokenNotFoundException | UserNotFoundException ex) {
+            loggerService.passwordlessLoginFailed(request.getRemoteAddr());
             return ResponseEntity.notFound().build();
         }
-
     }
 }

@@ -6,10 +6,20 @@ import com.agent.dto.GetCompanyResponseDTO;
 import com.agent.exception.CompanyNotFoundException;
 import com.agent.exception.UserNotFoundException;
 import com.agent.service.CompanyService;
+import com.agent.service.LoggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -20,8 +30,11 @@ public class CompanyController {
 
     private final CompanyService companyService;
 
+    private final LoggerService loggerService;
+
     public CompanyController(CompanyService companyService) {
         this.companyService = companyService;
+        this.loggerService = new LoggerService(this.getClass());
     }
 
     @PreAuthorize("hasAuthority('CREATE_COMPANY_PERMISSION')")
@@ -29,8 +42,10 @@ public class CompanyController {
     public ResponseEntity<CreateCompanyResponseDTO> addCompany(@Valid @RequestBody CreateCompanyRequestDTO createDTO) {
         try {
             CreateCompanyResponseDTO responseDTO = companyService.addCompany(createDTO);
+            loggerService.createCompanySuccess(SecurityContextHolder.getContext().getAuthentication().getName());
             return ResponseEntity.ok(responseDTO);
         } catch (UserNotFoundException userNotFoundException) {
+            loggerService.createCompanyFailure(SecurityContextHolder.getContext().getAuthentication().getName());
             return ResponseEntity.notFound().build();
         }
     }
@@ -40,8 +55,10 @@ public class CompanyController {
     public ResponseEntity<CreateCompanyResponseDTO> updateCompany(@Valid @RequestBody CreateCompanyRequestDTO updateDTO, @PathVariable String id) {
         try {
             CreateCompanyResponseDTO responseDTO = companyService.updateCompany(id, updateDTO);
+            loggerService.updateCompanySuccess(SecurityContextHolder.getContext().getAuthentication().getName());
             return ResponseEntity.ok(responseDTO);
         } catch (CompanyNotFoundException notFoundException) {
+            loggerService.updateCompanyFailure(SecurityContextHolder.getContext().getAuthentication().getName());
             return ResponseEntity.notFound().build();
         }
     }
@@ -57,8 +74,10 @@ public class CompanyController {
     public ResponseEntity<HttpStatus> activateCompany(@PathVariable String id) {
         try {
             companyService.activateCompany(id);
+            loggerService.activateCompanySuccess(SecurityContextHolder.getContext().getAuthentication().getName(), id);
             return ResponseEntity.noContent().build();
         } catch (UserNotFoundException | CompanyNotFoundException notFoundException) {
+            loggerService.activateCompanyFailure(SecurityContextHolder.getContext().getAuthentication().getName(), id);
             return ResponseEntity.notFound().build();
         }
     }
@@ -68,15 +87,17 @@ public class CompanyController {
     public ResponseEntity<HttpStatus> removeCompany(@PathVariable String id) {
         try {
             companyService.removeCompany(id);
+            loggerService.removeCompanySuccess(SecurityContextHolder.getContext().getAuthentication().getName(), id);
             return ResponseEntity.noContent().build();
         } catch (CompanyNotFoundException notFoundException) {
+            loggerService.removeCompanyFailure(SecurityContextHolder.getContext().getAuthentication().getName(), id);
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("{id}")
     public ResponseEntity<GetCompanyResponseDTO> getCompanyById(@PathVariable String id) {
-        if(companyService.findById(id).isPresent()) {
+        if (companyService.findById(id).isPresent()) {
             GetCompanyResponseDTO companyResponseDTO = new GetCompanyResponseDTO(companyService.findById(id).get());
             return ResponseEntity.ok(companyResponseDTO);
         }
