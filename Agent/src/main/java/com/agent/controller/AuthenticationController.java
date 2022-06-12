@@ -10,6 +10,7 @@ import com.agent.service.AuthenticationService;
 import com.agent.service.LoggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 
@@ -34,13 +36,13 @@ public class AuthenticationController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO) {
+    public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO, HttpServletRequest request) {
         try {
             TokenDTO tokenDTO = authenticationService.login(loginDTO.getEmail(), loginDTO.getPassword());
-            loggerService.loginSuccess(loginDTO.getEmail());
+            loggerService.loginSuccess(loginDTO.getEmail(), request.getRemoteAddr());
             return ResponseEntity.ok(tokenDTO);
         } catch (Exception ex) {
-            loggerService.loginFailed(loginDTO.getEmail());
+            loggerService.loginFailed(loginDTO.getEmail(), request.getRemoteAddr());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -61,8 +63,10 @@ public class AuthenticationController {
     public ResponseEntity<?> recoverAccount(@Email String email) {
         try {
             authenticationService.recoverAccount(email);
+            loggerService.accountRecovered(email);
             return ResponseEntity.ok().build();
         } catch (UserNotFoundException ex) {
+            loggerService.accountRecoverFailedUserNotFound(email);
             return ResponseEntity.notFound().build();
         }
     }
@@ -70,7 +74,9 @@ public class AuthenticationController {
     @GetMapping("/checkToken/{token}")
     public ResponseEntity<?> checkToken(@PathVariable String token) {
         boolean valid = authenticationService.checkToken(token);
-        if (!valid) return ResponseEntity.badRequest().build();
+        if (!valid) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -80,6 +86,7 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body("Passwords not matching");
         try {
             authenticationService.changePasswordRecovery(passwordDto.getNewPassword(), token);
+
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Token expired");
@@ -90,6 +97,7 @@ public class AuthenticationController {
     public ResponseEntity<?> passwordLessToken(@Email String email) {
         try {
             authenticationService.generatePasswordLessToken(email);
+            loggerService.generatePasswordlessLogin(email);
             return ResponseEntity.ok().build();
         } catch (UserNotFoundException ex) {
             return ResponseEntity.notFound().build();
@@ -97,13 +105,16 @@ public class AuthenticationController {
     }
 
     @GetMapping(value = "/login/password-less/{token}")
-    public ResponseEntity<?> passwordLessLogin(@PathVariable String token) {
+    public ResponseEntity<?> passwordLessLogin(@PathVariable String token, HttpServletRequest request) {
         try {
             TokenDTO tokens = authenticationService.passwordLessLogin(token);
+            loggerService.passwordlessLoginSuccess(SecurityContextHolder.getContext().getAuthentication().getName(), request.getRemoteAddr());
             return ResponseEntity.ok(tokens);
         } catch (TokenExpiredException ex) {
+            loggerService.passwordlessLoginFailed(request.getRemoteAddr());
             return ResponseEntity.badRequest().body("Token expired");
         } catch (TokenNotFoundException | UserNotFoundException ex) {
+            loggerService.passwordlessLoginFailed(request.getRemoteAddr());
             return ResponseEntity.notFound().build();
         }
 

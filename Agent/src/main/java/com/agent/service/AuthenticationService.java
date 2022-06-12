@@ -33,6 +33,8 @@ public class AuthenticationService {
 
     private final EmailService emailService;
 
+    private final LoggerService loggerService;
+
     private final int REGISTRATION_TOKEN_EXPIRES = 60;
     private final int RECOVERY_TOKEN_EXPIRES = 60;
 
@@ -43,6 +45,7 @@ public class AuthenticationService {
         this.verificationTokenService = verificationTokenService;
         this.userService = userService;
         this.emailService = emailService;
+        this.loggerService = new LoggerService(this.getClass());
     }
 
     public TokenDTO login(String email, String password) {
@@ -65,13 +68,16 @@ public class AuthenticationService {
     public void verifyUserAccount(String token) {
         VerificationToken verificationToken = verificationTokenService.findVerificationTokenByToken(token);
         if (verificationToken == null) {
+            loggerService.accountConfirmedFailedTokenNotFound(token);
             throw new TokenNotFoundException();
         }
         User user = verificationToken.getUser();
         verificationTokenService.delete(verificationToken);
         if (getDifferenceInMinutes(verificationToken) < REGISTRATION_TOKEN_EXPIRES) {
             userService.activateUser(user);
+            loggerService.accountConfirmed(user.getEmail());
         } else {
+            loggerService.accountConfirmedFailedTokenExpired(token, user.getEmail());
             throw new TokenExpiredException();
         }
     }
@@ -84,7 +90,7 @@ public class AuthenticationService {
 
     public void recoverAccount(String email) {
         Optional<User> user = userService.findByEmail(email);
-        if(user.isEmpty())
+        if (user.isEmpty())
             throw new UserNotFoundException();
         VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user.get());
         emailService.sendEmail(email, "Account recovery", "https://localhost:4201/recover/" + verificationToken.getToken() + " Click on this link to change your password");
@@ -98,9 +104,10 @@ public class AuthenticationService {
     public void changePasswordRecovery(String newPassword, String token) throws TokenExpiredException, UserNotFoundException {
         VerificationToken verificationToken = getVerificationToken(token);
         Optional<User> user = userService.findByEmail(verificationToken.getUser().getEmail());
-        if(user.isEmpty())
+        if (user.isEmpty())
             throw new UserNotFoundException();
         userService.changePassword(user.get(), newPassword);
+        loggerService.passwordRecoveredSuccessfully(user.get().getEmail());
         verificationTokenService.delete(verificationToken);
     }
 
@@ -117,8 +124,9 @@ public class AuthenticationService {
 
         VerificationToken verificationToken = getVerificationToken(token);
         Optional<User> user = userService.findByEmail(verificationToken.getUser().getEmail());
-        if(user.isEmpty())
+        if (user.isEmpty()) {
             throw new UserNotFoundException();
+        }
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user.get().getUsername(), null, user.get().getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -130,7 +138,7 @@ public class AuthenticationService {
         VerificationToken verificationToken = verificationTokenService.findVerificationTokenByToken(token);
         if (verificationToken == null)
             throw new TokenNotFoundException();
-        if(getDifferenceInMinutes(verificationToken) >= RECOVERY_TOKEN_EXPIRES)
+        if (getDifferenceInMinutes(verificationToken) >= RECOVERY_TOKEN_EXPIRES)
             throw new TokenExpiredException();
         return verificationToken;
     }
