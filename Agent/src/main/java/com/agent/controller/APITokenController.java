@@ -27,7 +27,7 @@ public class APITokenController {
     @PreAuthorize("hasAuthority('ADD_API_TOKEN_PERMISSION')")
     @PostMapping
     public ResponseEntity<APITokenResponseDTO> addAPIToken(@Valid @RequestBody APITokenRequestDTO apiTokenDTO, @RequestHeader(value = "Authorization") String jwtToken) {
-        String userId = tokenUtils.getUsernameFromToken(jwtToken.substring(7));
+        String userId = tokenUtils.getUserIdFromToken(jwtToken.substring(7));
         APIToken savedApiToken = apiTokenService.add(apiTokenDTO.getApiToken(), userId);
         return ResponseEntity.ok(new APITokenResponseDTO(savedApiToken.getId(), savedApiToken.getToken()));
     }
