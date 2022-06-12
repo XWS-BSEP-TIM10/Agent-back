@@ -31,6 +31,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>42.4.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -90,12 +91,38 @@
         <dependency>
             <groupId>org.owasp.esapi</groupId>
             <artifactId>esapi</artifactId>
-            <version>2.1.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+        	    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+            <version>2.4.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>30.0-android</version>
+        </dependency>
+        
+        <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-core</artifactId>
+        <version>3.8.5</version>
+        </dependency>
+        
+        <dependency>
+        <groupId>com.ibm.icu</groupId>
+        <artifactId>icu4j</artifactId>
+        <version>70.1</version>
+        </dependency>
+        
+        
     </dependencies>
 
 
@@ -113,6 +140,18 @@
                     <target>16</target>
                 </configuration>
             </plugin>
+            <plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>7.1.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
         </plugins>
     </build>
 
