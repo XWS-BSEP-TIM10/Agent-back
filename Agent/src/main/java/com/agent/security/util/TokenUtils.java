@@ -150,6 +150,22 @@ public class TokenUtils {
         return username;
     }
 
+    public String getUserIdFromToken(String token) {
+        String userId;
+
+        try {
+            final Claims claims = this.getAllClaimsFromToken(token);
+            userId = (String) claims.get("userId");
+        } catch (ExpiredJwtException ex) {
+            throw ex;
+        } catch (Exception e) {
+            userId = null;
+        }
+
+        return userId;
+
+    }
+
     /**
      * Funkcija za preuzimanje datuma kreiranja tokena.
      *
