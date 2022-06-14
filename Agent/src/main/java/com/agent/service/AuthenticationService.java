@@ -54,11 +54,13 @@ public class AuthenticationService {
 
     public TokenDTO login(String email, String password, String code) {
         User user = userService.findByEmail(email).orElseThrow(RuntimeException::new);
+
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                email, password));
+
         if (user.isUsing2FA() && (code == null || !code.equals(getTOTPCode(user.getSecret())))) {
             throw new CodeNotMatchingException();
         }
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                email, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         User loggedUser = (User) authentication.getPrincipal();
         return new TokenDTO(getToken(loggedUser), getRefreshToken(loggedUser));
