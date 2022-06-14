@@ -41,7 +41,7 @@ public class User implements UserDetails {
 
 
     @Column(name = "is_using_2fa", unique = false, nullable = false)
-    private boolean isUsing2FA;
+    private boolean isUsing2FA = false;
 
     @Column(name = "secret", unique = false, nullable = false)
     private String secret;
@@ -154,7 +154,12 @@ public class User implements UserDetails {
         isUsing2FA = using2FA;
     }
 
-    public static String generateSecretKey() {
+    public void addSecretKey() {
+        this.secret = generateSecretKey();
+    }
+
+
+    private static String generateSecretKey() {
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[20];
         random.nextBytes(bytes);

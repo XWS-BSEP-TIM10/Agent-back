@@ -1,6 +1,7 @@
 package com.agent.service;
 
 import com.agent.dto.TokenDTO;
+import com.agent.exception.CodeNotMatchingException;
 import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
 import com.agent.exception.UserNotFoundException;
@@ -51,12 +52,16 @@ public class AuthenticationService {
         this.loggerService = new LoggerService(this.getClass());
     }
 
-    public TokenDTO login(String email, String password) {
+    public TokenDTO login(String email, String password, String code) {
+        User user = userService.findByEmail(email).orElseThrow(RuntimeException::new);
+        if (user.isUsing2FA() && (code == null || !code.equals(getTOTPCode(user.getSecret())))) {
+            throw new CodeNotMatchingException();
+        }
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 email, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        User user = (User) authentication.getPrincipal();
-        return new TokenDTO(getToken(user), getRefreshToken(user));
+        User loggedUser = (User) authentication.getPrincipal();
+        return new TokenDTO(getToken(loggedUser), getRefreshToken(loggedUser));
     }
 
     private String getToken(User user) {
@@ -151,5 +156,9 @@ public class AuthenticationService {
         byte[] bytes = base32.decode(secretKey);
         String hexKey = Hex.encodeHexString(bytes);
         return TOTP.getOTP(hexKey);
+    }
+
+    public String change2FAStatus(String userId, boolean enableFA) {
+        return userService.change2FAStatus(userId, enableFA);
     }
 }

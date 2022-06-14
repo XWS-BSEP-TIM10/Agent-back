@@ -51,6 +51,9 @@ VALUES (10, 'CREATE_REVIEW_PERMISSION');
 INSERT INTO permission(id, name)
 VALUES (11, 'CREATE_SALARY_PERMISSION');
 
+INSERT INTO permission(id, name)
+VALUES (12, 'UPDATE_2FA_STATUS');
+
 
 INSERT INTO roles_permissions(role_id, permission_id)
 VALUES (2, 1);
@@ -84,6 +87,16 @@ VALUES (1, 10);
 
 INSERT INTO roles_permissions(role_id, permission_id)
 VALUES (1, 11);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (1, 12);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (2, 12);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (3, 12);
+
 
 
 INSERT INTO user_role (ROLE_ID, USER_ID)
