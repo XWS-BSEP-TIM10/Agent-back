@@ -1,5 +1,6 @@
 package com.agent.model;
 
+import org.apache.commons.codec.binary.Base32;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +40,13 @@ public class User implements UserDetails {
     private boolean activated;
 
 
+    @Column(name = "is_using_2fa", unique = false, nullable = false)
+    private boolean isUsing2FA = false;
+
+    @Column(name = "secret", unique = false, nullable = false)
+    private String secret;
+
+
     public User() {
     }
 
@@ -49,6 +58,8 @@ public class User implements UserDetails {
         this.password = password;
         this.roles = userType;
         this.activated = false;
+        this.isUsing2FA = false;
+        this.secret = generateSecretKey();
     }
 
     public User(String email, String password) {
@@ -130,5 +141,30 @@ public class User implements UserDetails {
         return permissions;
     }
 
+    public boolean isUsing2FA() {
+        return isUsing2FA;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+
+    public void setUsing2FA(boolean using2FA) {
+        isUsing2FA = using2FA;
+    }
+
+    public void addSecretKey() {
+        this.secret = generateSecretKey();
+    }
+
+
+    private static String generateSecretKey() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[20];
+        random.nextBytes(bytes);
+        Base32 base32 = new Base32();
+        return base32.encodeToString(bytes);
+    }
 
 }

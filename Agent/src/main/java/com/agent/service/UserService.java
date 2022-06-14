@@ -9,7 +9,6 @@ import com.agent.model.User;
 import com.agent.model.VerificationToken;
 import com.agent.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,12 +46,14 @@ public class UserService {
     public User addNewUser(User user) throws UserAlreadyExistsException {
         if (repository.findByEmail(user.getEmail()).isPresent())
             throw new UserAlreadyExistsException();
+
         user.setId(UUID.randomUUID().toString());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setActivated(false);
         List<Role> roles = new ArrayList<>();
         roles.add(roleService.findByName("ROLE_USER"));
         user.setRoles(roles);
+        user.addSecretKey();
         User savedUser = repository.save(user);
 
         VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
@@ -83,10 +84,17 @@ public class UserService {
 
     public User changePassword(ChangePasswordDTO changePasswordDTO) throws UserNotFoundException, WrongPasswordException {
         Optional<User> user = findByEmail(changePasswordDTO.getEmail());
-        if(user.isEmpty())
+        if (user.isEmpty())
             throw new UserNotFoundException();
-        if(!BCrypt.checkpw(changePasswordDTO.getOldPassword(), user.get().getPassword()))
+        if (!BCrypt.checkpw(changePasswordDTO.getOldPassword(), user.get().getPassword()))
             throw new WrongPasswordException();
         return changePassword(user.get(), changePasswordDTO.getNewPassword());
+    }
+
+    public String change2FAStatus(String userId, boolean enableFA) {
+        User user = findById(userId).orElseThrow(UserNotFoundException::new);
+        user.setUsing2FA(enableFA);
+        repository.save(user);
+        return enableFA ? user.getSecret() : "";
     }
 }

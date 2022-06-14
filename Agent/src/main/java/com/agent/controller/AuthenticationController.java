@@ -1,21 +1,30 @@
 package com.agent.controller;
 
-import com.agent.dto.LoginDTO;
-import com.agent.dto.PasswordDto;
-import com.agent.dto.TokenDTO;
+import com.agent.dto.*;
+import com.agent.exception.CodeNotMatchingException;
 import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
 import com.agent.exception.UserNotFoundException;
+import com.agent.model.User;
 import com.agent.service.AuthenticationService;
 import com.agent.service.LoggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import javax.websocket.server.PathParam;
 
 @RestController
 @RequestMapping(value = "/api/v1/auth")
@@ -32,12 +41,32 @@ public class AuthenticationController {
     @PostMapping(value = "/login")
     public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO, HttpServletRequest request) {
         try {
-            TokenDTO tokenDTO = authenticationService.login(loginDTO.getEmail(), loginDTO.getPassword());
+            TokenDTO tokenDTO = authenticationService.login(loginDTO.getEmail(), loginDTO.getPassword(), loginDTO.getCode());
             loggerService.loginSuccess(loginDTO.getEmail(), request.getRemoteAddr());
             return ResponseEntity.ok(tokenDTO);
+        } catch (CodeNotMatchingException codeNotMatchingException) {
+            return ResponseEntity.status(300).build();
         } catch (Exception ex) {
             loggerService.loginFailed(loginDTO.getEmail(), request.getRemoteAddr());
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PreAuthorize("hasAuthority('UPDATE_2FA_STATUS')")
+    @PutMapping(value = "/2fa")
+    public ResponseEntity<TwoFAResponseDTO> change2FAStatus(@RequestBody TwoFADTO twoFADTO) {
+        String secret = authenticationService.change2FAStatus(twoFADTO.getUserId(), twoFADTO.isEnable2FA());
+        return ResponseEntity.ok(new TwoFAResponseDTO(secret));
+    }
+
+    @PreAuthorize("hasAuthority('CHECK_2FA_STATUS')")
+    @GetMapping(value= "/2fa/status/{userId}")
+    public ResponseEntity<TwoFAStatusDTO> check2FAStatus(@PathVariable String userId) {
+        try {
+            boolean twoFAEnabled = authenticationService.checkTwoFaStatus(userId);
+            return ResponseEntity.ok(new TwoFAStatusDTO(twoFAEnabled));
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.notFound().build();
         }
     }
 

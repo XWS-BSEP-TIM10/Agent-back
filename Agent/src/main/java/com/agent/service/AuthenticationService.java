@@ -1,12 +1,16 @@
 package com.agent.service;
 
 import com.agent.dto.TokenDTO;
+import com.agent.exception.CodeNotMatchingException;
 import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
 import com.agent.exception.UserNotFoundException;
 import com.agent.model.User;
 import com.agent.model.VerificationToken;
 import com.agent.security.util.TokenUtils;
+import de.taimos.totp.TOTP;
+import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -48,12 +52,16 @@ public class AuthenticationService {
         this.loggerService = new LoggerService(this.getClass());
     }
 
-    public TokenDTO login(String email, String password) {
+    public TokenDTO login(String email, String password, String code) {
+        User user = userService.findByEmail(email).orElseThrow(RuntimeException::new);
+        if (user.isUsing2FA() && (code == null || !code.equals(getTOTPCode(user.getSecret())))) {
+            throw new CodeNotMatchingException();
+        }
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 email, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        User user = (User) authentication.getPrincipal();
-        return new TokenDTO(getToken(user), getRefreshToken(user));
+        User loggedUser = (User) authentication.getPrincipal();
+        return new TokenDTO(getToken(loggedUser), getRefreshToken(loggedUser));
     }
 
     private String getToken(User user) {
@@ -141,5 +149,21 @@ public class AuthenticationService {
         if (getDifferenceInMinutes(verificationToken) >= RECOVERY_TOKEN_EXPIRES)
             throw new TokenExpiredException();
         return verificationToken;
+    }
+
+    public static String getTOTPCode(String secretKey) {
+        Base32 base32 = new Base32();
+        byte[] bytes = base32.decode(secretKey);
+        String hexKey = Hex.encodeHexString(bytes);
+        return TOTP.getOTP(hexKey);
+    }
+
+    public String change2FAStatus(String userId, boolean enableFA) {
+        return userService.change2FAStatus(userId, enableFA);
+    }
+
+    public boolean checkTwoFaStatus(String userId) {
+        User user = userService.findById(userId).orElseThrow(UserNotFoundException::new);
+        return user.isUsing2FA();
     }
 }
