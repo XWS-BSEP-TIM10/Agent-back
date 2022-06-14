@@ -5,7 +5,6 @@ import com.agent.exception.CodeNotMatchingException;
 import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
 import com.agent.exception.UserNotFoundException;
-import com.agent.model.User;
 import com.agent.service.AuthenticationService;
 import com.agent.service.LoggerService;
 import org.springframework.http.HttpStatus;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
-import javax.websocket.server.PathParam;
 
 @RestController
 @RequestMapping(value = "/api/v1/auth")
@@ -45,6 +43,7 @@ public class AuthenticationController {
             loggerService.loginSuccess(loginDTO.getEmail(), request.getRemoteAddr());
             return ResponseEntity.ok(tokenDTO);
         } catch (CodeNotMatchingException codeNotMatchingException) {
+            loggerService.login2FAFailedCodeNotMatching(loginDTO.getEmail(), request.getRemoteAddr());
             return ResponseEntity.status(300).build();
         } catch (Exception ex) {
             loggerService.loginFailed(loginDTO.getEmail(), request.getRemoteAddr());
@@ -56,16 +55,19 @@ public class AuthenticationController {
     @PutMapping(value = "/2fa")
     public ResponseEntity<TwoFAResponseDTO> change2FAStatus(@RequestBody TwoFADTO twoFADTO) {
         String secret = authenticationService.change2FAStatus(twoFADTO.getUserId(), twoFADTO.isEnable2FA());
+        loggerService.twoFAStatusChanged(twoFADTO.isEnable2FA(), SecurityContextHolder.getContext().getAuthentication().getName());
         return ResponseEntity.ok(new TwoFAResponseDTO(secret));
     }
 
     @PreAuthorize("hasAuthority('CHECK_2FA_STATUS')")
     @GetMapping(value= "/2fa/status/{userId}")
-    public ResponseEntity<TwoFAStatusDTO> check2FAStatus(@PathVariable String userId) {
+    public ResponseEntity<TwoFAStatusDTO> check2FAStatus(@PathVariable String userId, HttpServletRequest request) {
         try {
             boolean twoFAEnabled = authenticationService.checkTwoFaStatus(userId);
+            loggerService.twoFAStatusCheck(SecurityContextHolder.getContext().getAuthentication().getName(), request.getRemoteAddr());
             return ResponseEntity.ok(new TwoFAStatusDTO(twoFAEnabled));
         } catch (UserNotFoundException ex) {
+            loggerService.two2FACheckFailed(SecurityContextHolder.getContext().getAuthentication().getName(), request.getRemoteAddr());
             return ResponseEntity.notFound().build();
         }
     }
