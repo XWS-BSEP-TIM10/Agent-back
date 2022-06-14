@@ -2,7 +2,7 @@ INSERT INTO users (ID, PASSWORD, EMAIL, ACTIVATED, IS_USING_2FA, SECRET)
 VALUES ('d12602fd-b7af-4da1-b1ca-bad8166d1fb2', '$2a$10$28MUwyYgna28OIxoUnE7VOpjby0JRJUU0WQV0UZdMX5XA46XAvBCK', 'jankovicapoteka@gmail.com', true, false, 'QDWSM3OYBPGTEVSPB5FKVDM3CSNCWHVK');
 
 INSERT INTO users (ID, PASSWORD, EMAIL, ACTIVATED, IS_USING_2FA, SECRET)
-VALUES ('d12602fd-b7af-4da1-b1ca-bad8166d1fb3', '$2a$10$28MUwyYgna28OIxoUnE7VOpjby0JRJUU0WQV0UZdMX5XA46XAvBCK', 'peraperic4200@gmail.com', true, false, 'QDWSM3OYBPGTEVSPB5FKVDM3CSNCWHVK');
+VALUES ('d12602fd-b7af-4da1-b1ca-bad8166d1fb3', '$2a$10$28MUwyYgna28OIxoUnE7VOpjby0JRJUU0WQV0UZdMX5XA46XAvBCK', 'peraperic4200@gmail.com', true, true, 'QDWSM3OYBPGTEVSPB5FKVDM3CSNCWHVK');
 
 INSERT INTO users (ID, PASSWORD, EMAIL, ACTIVATED, IS_USING_2FA, SECRET)
 VALUES ('d12602fd-b7af-4da1-b1ca-bad8166d1fb4', '$2a$10$28MUwyYgna28OIxoUnE7VOpjby0JRJUU0WQV0UZdMX5XA46XAvBCK', 'admin@gmail.com', true, false, 'QDWSM3OYBPGTEVSPB5FKVDM3CSNCWHVK');
@@ -54,6 +54,9 @@ VALUES (11, 'CREATE_SALARY_PERMISSION');
 INSERT INTO permission(id, name)
 VALUES (12, 'UPDATE_2FA_STATUS');
 
+INSERT INTO permission(id, name)
+VALUES (13, 'CHECK_2FA_STATUS');
+
 
 INSERT INTO roles_permissions(role_id, permission_id)
 VALUES (2, 1);
@@ -96,6 +99,15 @@ VALUES (2, 12);
 
 INSERT INTO roles_permissions(role_id, permission_id)
 VALUES (3, 12);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (1, 13);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (2, 13);
+
+INSERT INTO roles_permissions(role_id, permission_id)
+VALUES (3, 13);
 
 
 

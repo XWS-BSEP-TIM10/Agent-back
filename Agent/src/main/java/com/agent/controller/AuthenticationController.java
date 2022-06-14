@@ -1,14 +1,11 @@
 package com.agent.controller;
 
-import com.agent.dto.LoginDTO;
-import com.agent.dto.PasswordDto;
-import com.agent.dto.TokenDTO;
-import com.agent.dto.TwoFADTO;
-import com.agent.dto.TwoFAResponseDTO;
+import com.agent.dto.*;
 import com.agent.exception.CodeNotMatchingException;
 import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
 import com.agent.exception.UserNotFoundException;
+import com.agent.model.User;
 import com.agent.service.AuthenticationService;
 import com.agent.service.LoggerService;
 import org.springframework.http.HttpStatus;
@@ -27,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import javax.websocket.server.PathParam;
 
 @RestController
 @RequestMapping(value = "/api/v1/auth")
@@ -59,6 +57,17 @@ public class AuthenticationController {
     public ResponseEntity<TwoFAResponseDTO> change2FAStatus(@RequestBody TwoFADTO twoFADTO) {
         String secret = authenticationService.change2FAStatus(twoFADTO.getUserId(), twoFADTO.isEnable2FA());
         return ResponseEntity.ok(new TwoFAResponseDTO(secret));
+    }
+
+    @PreAuthorize("hasAuthority('CHECK_2FA_STATUS')")
+    @GetMapping(value= "/2fa/status/{userId}")
+    public ResponseEntity<TwoFAStatusDTO> check2FAStatus(@PathVariable String userId) {
+        try {
+            boolean twoFAEnabled = authenticationService.checkTwoFaStatus(userId);
+            return ResponseEntity.ok(new TwoFAStatusDTO(twoFAEnabled));
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping(value = "/confirm/{token}")

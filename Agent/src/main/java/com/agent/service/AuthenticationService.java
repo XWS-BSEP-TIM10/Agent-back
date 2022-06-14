@@ -161,4 +161,9 @@ public class AuthenticationService {
     public String change2FAStatus(String userId, boolean enableFA) {
         return userService.change2FAStatus(userId, enableFA);
     }
+
+    public boolean checkTwoFaStatus(String userId) {
+        User user = userService.findById(userId).orElseThrow(UserNotFoundException::new);
+        return user.isUsing2FA();
+    }
 }
