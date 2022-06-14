@@ -7,6 +7,9 @@ import com.agent.exception.UserNotFoundException;
 import com.agent.model.User;
 import com.agent.model.VerificationToken;
 import com.agent.security.util.TokenUtils;
+import de.taimos.totp.TOTP;
+import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -141,5 +144,12 @@ public class AuthenticationService {
         if (getDifferenceInMinutes(verificationToken) >= RECOVERY_TOKEN_EXPIRES)
             throw new TokenExpiredException();
         return verificationToken;
+    }
+
+    public static String getTOTPCode(String secretKey) {
+        Base32 base32 = new Base32();
+        byte[] bytes = base32.decode(secretKey);
+        String hexKey = Hex.encodeHexString(bytes);
+        return TOTP.getOTP(hexKey);
     }
 }
