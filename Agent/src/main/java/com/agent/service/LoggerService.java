@@ -174,4 +174,20 @@ public class LoggerService {
     public void unauthorizedAccess(String method, String path, String ip) {
         logger.warn("Unauthorized access to {}: {}. From: {}", method, path, ip);
     }
+
+    public void twoFAStatusChanged(boolean enable2FA, String email) {
+        logger.info("Two-factor authentication status changed on: {}. Email: {}", enable2FA, email);
+    }
+
+    public void login2FAFailedCodeNotMatching(String email, String ip) {
+        logger.warn("Two-factor login failed, invalid code. Username: {} From: {}", email, ip);
+    }
+
+    public void twoFAStatusCheck(String email, String ip) {
+        logger.info("Two-factor authentication status check done. Username: {} From: {}", email, ip);
+    }
+
+    public void two2FACheckFailed(String email, String ip) {
+        logger.warn("Login failed. Username: {} From: {}", email, ip);
+    }
 }
