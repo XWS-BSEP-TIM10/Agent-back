@@ -188,6 +188,6 @@ public class LoggerService {
     }
 
     public void two2FACheckFailed(String email, String ip) {
-        logger.warn("Login failed. Username: {} From: {}", email, ip);
+        logger.warn("Checking two-factor status failed. Username: {} From: {}", email, ip);
     }
 }
