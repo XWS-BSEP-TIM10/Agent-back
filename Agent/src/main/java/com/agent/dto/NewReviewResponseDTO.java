@@ -27,18 +27,6 @@ public class NewReviewResponseDTO {
     public NewReviewResponseDTO() {
     }
 
-    public NewReviewResponseDTO(String id, String title, String positive, String negative, String position, double rating, String reviewerId, String companyId, String creationDate) {
-        this.id = id;
-        this.title = title;
-        this.positive = positive;
-        this.negative = negative;
-        this.position = position;
-        this.rating = rating;
-        this.reviewerId = reviewerId;
-        this.companyId = companyId;
-        this.creationDate = creationDate;
-    }
-
     public NewReviewResponseDTO(Review review) {
         this.id = review.getId();
         this.title = review.getTitle();

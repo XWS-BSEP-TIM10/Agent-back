@@ -39,8 +39,8 @@ public class AuthenticationService {
 
     private final LoggerService loggerService;
 
-    private final int REGISTRATION_TOKEN_EXPIRES = 60;
-    private final int RECOVERY_TOKEN_EXPIRES = 60;
+    private static final int REGISTRATION_TOKEN_EXPIRES = 60;
+    private static final int RECOVERY_TOKEN_EXPIRES = 60;
 
     public AuthenticationService(AuthenticationManager authenticationManager, TokenUtils tokenUtils, CompanyService companyService, VerificationTokenService verificationTokenService, UserService userService, EmailService emailService) {
         this.authenticationManager = authenticationManager;
@@ -52,17 +52,22 @@ public class AuthenticationService {
         this.loggerService = new LoggerService(this.getClass());
     }
 
-    public TokenDTO login(String email, String password, String code) {
-        User user = userService.findByEmail(email).orElseThrow(RuntimeException::new);
-
+    public TokenDTO login(String email, String password, String code, String ip) {
+        Optional<User> optionalUser = userService.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            loggerService.loginFailed("Non existent user", ip);
+            throw new UserNotFoundException();
+        }
+        User user = optionalUser.get();
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 email, password));
-
         if (user.isUsing2FA() && (code == null || !code.equals(getTOTPCode(user.getSecret())))) {
+            loggerService.login2FAFailedCodeNotMatching(user.getUsername(), ip);
             throw new CodeNotMatchingException();
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         User loggedUser = (User) authentication.getPrincipal();
+        loggerService.loginSuccess(user.getUsername(), ip);
         return new TokenDTO(getToken(loggedUser), getRefreshToken(loggedUser));
     }
 
@@ -85,9 +90,9 @@ public class AuthenticationService {
         verificationTokenService.delete(verificationToken);
         if (getDifferenceInMinutes(verificationToken) < REGISTRATION_TOKEN_EXPIRES) {
             userService.activateUser(user);
-            loggerService.accountConfirmed(user.getEmail());
+            loggerService.accountConfirmed(user.getUsername());
         } else {
-            loggerService.accountConfirmedFailedTokenExpired(token, user.getEmail());
+            loggerService.accountConfirmedFailedTokenExpired(token, user.getUsername());
             throw new TokenExpiredException();
         }
     }
@@ -113,11 +118,11 @@ public class AuthenticationService {
 
     public void changePasswordRecovery(String newPassword, String token) throws TokenExpiredException, UserNotFoundException {
         VerificationToken verificationToken = getVerificationToken(token);
-        Optional<User> user = userService.findByEmail(verificationToken.getUser().getEmail());
+        Optional<User> user = userService.findByEmail(verificationToken.getUser().getUsername());
         if (user.isEmpty())
             throw new UserNotFoundException();
         userService.changePassword(user.get(), newPassword);
-        loggerService.passwordRecoveredSuccessfully(user.get().getEmail());
+        loggerService.passwordRecoveredSuccessfully(user.get().getUsername());
         verificationTokenService.delete(verificationToken);
     }
 
@@ -133,7 +138,7 @@ public class AuthenticationService {
     public TokenDTO passwordlessLogin(String token) {
 
         VerificationToken verificationToken = getVerificationToken(token);
-        Optional<User> user = userService.findByEmail(verificationToken.getUser().getEmail());
+        Optional<User> user = userService.findByEmail(verificationToken.getUser().getUsername());
         if (user.isEmpty()) {
             throw new UserNotFoundException();
         }

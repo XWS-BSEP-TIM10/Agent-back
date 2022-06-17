@@ -5,6 +5,7 @@ import javax.validation.constraints.NotBlank;
 
 public class CreateCompanyRequestDTO {
     public CreateCompanyRequestDTO() {
+        /* DTO fields filled by reflection, empty constructor necessary */
     }
 
     @NotBlank

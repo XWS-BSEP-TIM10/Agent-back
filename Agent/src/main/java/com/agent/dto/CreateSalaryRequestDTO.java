@@ -18,6 +18,7 @@ public class CreateSalaryRequestDTO {
     private String companyId;
 
     public CreateSalaryRequestDTO() {
+        /* DTO fields filled by reflection, empty constructor necessary */
     }
 
     public double getValue() {

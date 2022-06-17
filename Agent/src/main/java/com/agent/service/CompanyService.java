@@ -32,8 +32,8 @@ public class CompanyService {
                 createDTO.getWebsite(),
                 createDTO.getPhoneNumber(),
                 createDTO.getEmail(),
-                createDTO.getDescription(),
-                user);
+                createDTO.getDescription());
+        company.setOwner(user);
         Company newCompany = companyRepository.save(company);
         return new CreateCompanyResponseDTO(newCompany);
     }
@@ -70,9 +70,9 @@ public class CompanyService {
     public void save(Company company) {
         companyRepository.save(company);
     }
-    
+
     public String getCompanyIdByUser(String userId) {
-    	return companyRepository.findByOwnerId(userId)!=null?companyRepository.findByOwnerId(userId).getId():"-1";
+        return companyRepository.findByOwnerId(userId) != null ? companyRepository.findByOwnerId(userId).getId() : "-1";
     }
 
     public void removeCompany(String id) {

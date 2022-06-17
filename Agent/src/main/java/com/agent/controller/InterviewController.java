@@ -59,7 +59,6 @@ public class InterviewController {
                 dtos.add(new InterviewDTO(interview));
             return ResponseEntity.ok(dtos);
         } catch (CompanyNotFoundException exception) {
-            exception.printStackTrace();
             return ResponseEntity.notFound().build();
         }
     }
