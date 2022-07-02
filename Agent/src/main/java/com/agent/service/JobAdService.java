@@ -86,18 +86,21 @@ public class JobAdService {
         RestTemplate restTemplate = createRestTemplate();
 
         Optional<JobAd> jobAd = repo.findById(id);
-        if(jobAd.isEmpty()) return null;
+        if (jobAd.isEmpty()) return null;
         ShareJobAdDTO shareJobAd = new ShareJobAdDTO(jobAd.get());
 
         HttpHeaders headers = new HttpHeaders();
         APIToken apiToken = apiTokenService.findByUser(userId);
-        if(apiToken == null)
+        if (apiToken == null)
             throw new APITokenNotFoundException();
         headers.set("DislinktAuth", apiToken.getToken());
 
         HttpEntity<ShareJobAdDTO> requestEntity =
                 new HttpEntity<>(shareJobAd, headers);
-        return restTemplate.exchange("https://localhost:8678/api/v1/job-ads", HttpMethod.POST, requestEntity, ShareJobAdDTO.class).getBody();
+        String apiGatewayHost = System.getenv("API_GATEWAY_HOST") == null ? "localhost" : System.getenv("API_GATEWAY_HOST");
+        String apiGatewayPort = System.getenv("API_GATEWAY_PORT") == null ? "8678" : System.getenv("API_GATEWAY_PORT");
+        String url = String.format("https://%s:%s/api/v1/job-ads", apiGatewayHost, apiGatewayPort);
+        return restTemplate.exchange(url, HttpMethod.POST, requestEntity, ShareJobAdDTO.class).getBody();
     }
 
     @NotNull
@@ -108,7 +111,7 @@ public class JobAdService {
                 NoopHostnameVerifier.INSTANCE);
 
         Registry<ConnectionSocketFactory> socketFactoryRegistry =
-                RegistryBuilder.<ConnectionSocketFactory> create()
+                RegistryBuilder.<ConnectionSocketFactory>create()
                         .register("https", sslsf)
                         .register("http", new PlainConnectionSocketFactory())
                         .build();
