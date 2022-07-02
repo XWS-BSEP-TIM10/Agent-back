@@ -80,10 +80,6 @@ public class User implements UserDetails {
         return email;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -102,10 +98,6 @@ public class User implements UserDetails {
 
     public List<Role> getRoles() {
         return roles;
-    }
-
-    public boolean isActivated() {
-        return activated;
     }
 
     public void setActivated(boolean activated) {
@@ -134,7 +126,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<Permission> permissions = new HashSet<Permission>();
+        Set<Permission> permissions = new HashSet<>();
         for (Role role : this.roles) {
             permissions.addAll(role.getPermission());
         }

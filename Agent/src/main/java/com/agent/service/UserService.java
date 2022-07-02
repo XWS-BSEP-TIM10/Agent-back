@@ -44,7 +44,7 @@ public class UserService {
 
 
     public User addNewUser(User user) throws UserAlreadyExistsException {
-        if (repository.findByEmail(user.getEmail()).isPresent())
+        if (repository.findByEmail(user.getUsername()).isPresent())
             throw new UserAlreadyExistsException();
 
         user.setId(UUID.randomUUID().toString());
@@ -57,7 +57,7 @@ public class UserService {
         User savedUser = repository.save(user);
 
         VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
-        emailService.sendEmail(user.getEmail(), "Account verification", "https://localhost:4201/confirm/" + verificationToken.getToken() + " Click on this link to activate your account");
+        emailService.sendEmail(user.getUsername(), "Account verification", "https://localhost:4201/confirm/" + verificationToken.getToken() + " Click on this link to activate your account");
         return savedUser;
     }
 

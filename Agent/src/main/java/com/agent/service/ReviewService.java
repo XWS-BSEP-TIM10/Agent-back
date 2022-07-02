@@ -9,7 +9,6 @@ import com.agent.model.User;
 import com.agent.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,18 +37,19 @@ public class ReviewService {
                 newReviewDTO.getPositive(),
                 newReviewDTO.getNegative(),
                 newReviewDTO.getPosition(),
-                newReviewDTO.getRating(),
-                reviewer, company, new Date());
+                newReviewDTO.getRating());
+        newReview.setCompany(company);
+        newReview.setReviewer(reviewer);
         return repository.save(newReview);
     }
 
     private double calculateAvgRating(String companyId, double newRating) {
         List<Review> reviews = getCompanyReviews(companyId);
         double sum = 0;
-        for(Review review : reviews)
+        for (Review review : reviews)
             sum += review.getRating();
         sum += newRating;
-        return sum/(double)(reviews.size() + 1);
+        return sum / (reviews.size() + 1);
     }
 
     public List<Review> getCompanyReviews(String id) {

@@ -23,11 +23,11 @@ import java.io.IOException;
 // u SecurityContext holder kako bi podaci o korisniku bili dostupni u ostalim delovima aplikacije gde su neophodni
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-    private TokenUtils tokenUtils;
+    private final TokenUtils tokenUtils;
 
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
-    protected final Log LOGGER = LogFactory.getLog(getClass());
+    protected final Log myLogger = LogFactory.getLog(getClass());
 
     public TokenAuthenticationFilter(TokenUtils tokenHelper, UserDetailsService userDetailsService) {
         this.tokenUtils = tokenHelper;
@@ -57,7 +57,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                     // 4. Provera da li je prosledjeni token validan
-                    if (tokenUtils.validateToken(authToken, userDetails)) {
+                    if (Boolean.TRUE.equals(tokenUtils.validateToken(authToken, userDetails))) {
 
                         // 5. Kreiraj autentifikaciju
                         TokenBasedAuthentication authentication = new TokenBasedAuthentication(userDetails);
@@ -68,7 +68,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (ExpiredJwtException ex) {
-            LOGGER.debug("Token expired!");
+            myLogger.debug("Token expired!");
         }
 
         // prosledi request dalje u sledeci filter

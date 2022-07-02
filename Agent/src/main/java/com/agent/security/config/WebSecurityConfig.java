@@ -22,13 +22,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 // Ukljucivanje podrske za anotacije "@Pre*" i "@Post*" koje ce aktivirati autorizacione provere za svaki pristup metodi
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-    // Implementacija PasswordEncoder-a koriscenjem BCrypt hashing funkcije.
-    // BCrypt po defalt-u radi 10 rundi hesiranja prosledjene vrednosti.
-   /* @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }*/
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -110,15 +103,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         // Dozvoljena POST metoda na ruti /auth/login, za svaki drugi tip HTTP metode greska je 401 Unauthorized
         web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/users/*");
-        web.ignoring().antMatchers(HttpMethod.PUT,  "/api/v1/auth/recover/changePassword/{token}");
+        web.ignoring().antMatchers(HttpMethod.PUT, "/api/v1/auth/recover/changePassword/{token}");
         web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/auth/*");
-//        web.ignoring().antMatchers("*", "/api/v1/**");
-
 
         // Ovim smo dozvolili pristup statickim resursima aplikacije
         web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
-                "/**/*.css", "/**/*.js", "/api/v1/companies", "/api/v1/companies/{id}","/api/v1/companies/{id}/interviews"
-                ,"/api/v1/companies/{id}/job-ads", "/api/v1/companies/{id}/reviews", "/api/v1/companies/{id}/salaries",
+                "/**/*.css", "/**/*.js", "/api/v1/companies", "/api/v1/companies/{id}", "/api/v1/companies/{id}/interviews"
+                , "/api/v1/companies/{id}/job-ads", "/api/v1/companies/{id}/reviews", "/api/v1/companies/{id}/salaries",
                 "/api/v1/auth/confirm/{token}", "/api/v1/auth/recover*", "/api/v1/auth/checkToken/{token}",
                 "/api/v1/auth/password-less*", "/api/v1/auth/login/password-less/{token}");
     }

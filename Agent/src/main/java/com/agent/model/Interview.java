@@ -27,13 +27,13 @@ public class Interview {
     @ManyToOne
     private Company company;
 
-    public Interview(String id, String title, String hrInterview, String techInterview, String position, Date creationDate, User candidate, Company company) {
+    public Interview(String id, String title, String hrInterview, String techInterview, String position, User candidate, Company company) {
         this.id = id;
         this.title = title;
         this.hrInterview = hrInterview;
         this.techInterview = techInterview;
         this.position = position;
-        this.creationDate = creationDate;
+        this.creationDate = new Date();
         this.candidate = candidate;
         this.company = company;
     }

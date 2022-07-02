@@ -1,6 +1,11 @@
 package com.agent.controller;
 
-import com.agent.dto.*;
+import com.agent.dto.LoginDTO;
+import com.agent.dto.PasswordDto;
+import com.agent.dto.TokenDTO;
+import com.agent.dto.TwoFADTO;
+import com.agent.dto.TwoFAResponseDTO;
+import com.agent.dto.TwoFAStatusDTO;
 import com.agent.exception.CodeNotMatchingException;
 import com.agent.exception.TokenExpiredException;
 import com.agent.exception.TokenNotFoundException;
@@ -39,14 +44,12 @@ public class AuthenticationController {
     @PostMapping(value = "/login")
     public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO, HttpServletRequest request) {
         try {
-            TokenDTO tokenDTO = authenticationService.login(loginDTO.getEmail(), loginDTO.getPassword(), loginDTO.getCode());
-            loggerService.loginSuccess(loginDTO.getEmail(), request.getRemoteAddr());
+            TokenDTO tokenDTO = authenticationService.login(loginDTO.getEmail(), loginDTO.getPassword(), loginDTO.getCode(), request.getRemoteAddr());
             return ResponseEntity.ok(tokenDTO);
         } catch (CodeNotMatchingException codeNotMatchingException) {
-            loggerService.login2FAFailedCodeNotMatching(loginDTO.getEmail(), request.getRemoteAddr());
             return ResponseEntity.status(300).build();
         } catch (Exception ex) {
-            loggerService.loginFailed(loginDTO.getEmail(), request.getRemoteAddr());
+
             return ResponseEntity.badRequest().build();
         }
     }
@@ -60,7 +63,7 @@ public class AuthenticationController {
     }
 
     @PreAuthorize("hasAuthority('CHECK_2FA_STATUS')")
-    @GetMapping(value= "/2fa/status/{userId}")
+    @GetMapping(value = "/2fa/status/{userId}")
     public ResponseEntity<TwoFAStatusDTO> check2FAStatus(@PathVariable String userId, HttpServletRequest request) {
         try {
             boolean twoFAEnabled = authenticationService.checkTwoFaStatus(userId);
@@ -85,7 +88,7 @@ public class AuthenticationController {
     }
 
     @GetMapping(value = "/recover")
-    public ResponseEntity<?> recoverAccount(@Email String email) {
+    public ResponseEntity<HttpStatus> recoverAccount(@Email String email) {
         try {
             authenticationService.recoverAccount(email);
             loggerService.accountRecovered(email);
@@ -97,7 +100,7 @@ public class AuthenticationController {
     }
 
     @GetMapping("/checkToken/{token}")
-    public ResponseEntity<?> checkToken(@PathVariable String token) {
+    public ResponseEntity<HttpStatus> checkToken(@PathVariable String token) {
         boolean valid = authenticationService.checkToken(token);
         if (!valid) {
             return ResponseEntity.badRequest().build();
@@ -106,7 +109,7 @@ public class AuthenticationController {
     }
 
     @PutMapping(value = "/recover/changePassword/{token}")
-    public ResponseEntity<?> changePasswordRecovery(@PathVariable String token, @RequestBody PasswordDto passwordDto) {
+    public ResponseEntity<String> changePasswordRecovery(@PathVariable String token, @RequestBody PasswordDto passwordDto) {
         if (!passwordDto.getNewPassword().equals(passwordDto.getRepeatedNewPassword()))
             return ResponseEntity.badRequest().body("Passwords not matching");
         try {
@@ -119,7 +122,7 @@ public class AuthenticationController {
     }
 
     @GetMapping(value = "/password-less")
-    public ResponseEntity<?> passwordlessToken(@RequestParam @Valid @Email String email) {
+    public ResponseEntity<HttpStatus> passwordlessToken(@RequestParam @Valid @Email String email) {
         try {
             authenticationService.generatePasswordlessToken(email);
             loggerService.generatePasswordlessLogin(email);
@@ -131,14 +134,14 @@ public class AuthenticationController {
     }
 
     @GetMapping(value = "/login/password-less/{token}")
-    public ResponseEntity<?> passwordlessLogin(@PathVariable String token, HttpServletRequest request) {
+    public ResponseEntity<TokenDTO> passwordlessLogin(@PathVariable String token, HttpServletRequest request) {
         try {
             TokenDTO tokens = authenticationService.passwordlessLogin(token);
             loggerService.passwordlessLoginSuccess(SecurityContextHolder.getContext().getAuthentication().getName(), request.getRemoteAddr());
             return ResponseEntity.ok(tokens);
         } catch (TokenExpiredException ex) {
             loggerService.passwordlessLoginFailed(request.getRemoteAddr());
-            return ResponseEntity.badRequest().body("Token expired");
+            return ResponseEntity.badRequest().build();
         } catch (TokenNotFoundException | UserNotFoundException ex) {
             loggerService.passwordlessLoginFailed(request.getRemoteAddr());
             return ResponseEntity.notFound().build();

@@ -9,7 +9,6 @@ import com.agent.model.User;
 import com.agent.repository.InterviewRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,8 +35,7 @@ public class InterviewService {
                 newInterviewDTO.getTitle(),
                 newInterviewDTO.getHrInterview(),
                 newInterviewDTO.getTechInterview(),
-                newInterviewDTO.getPosition(),
-                new Date(), candidate, company);
+                newInterviewDTO.getPosition(), candidate, company);
         return repository.save(newInterview);
     }
 

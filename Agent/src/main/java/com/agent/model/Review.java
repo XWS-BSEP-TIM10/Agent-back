@@ -1,4 +1,5 @@
 package com.agent.model;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -28,16 +29,14 @@ public class Review {
 
     private Date creationDate;
 
-    public Review(String id, String title, String positive, String negative, String position, double rating, User reviewer, Company company, Date creationDate) {
+    public Review(String id, String title, String positive, String negative, String position, double rating) {
         this.id = id;
         this.title = title;
         this.positive = positive;
         this.negative = negative;
         this.position = position;
         this.rating = rating;
-        this.reviewer = reviewer;
-        this.company = company;
-        this.creationDate = creationDate;
+        this.creationDate = new Date();
     }
 
     public Review() {

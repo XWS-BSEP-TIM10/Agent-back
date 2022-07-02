@@ -32,7 +32,7 @@ public class Company {
     public Company() {
     }
 
-    public Company(String id, String name, String address, String website, String phoneNumber, String email, String description, User owner) {
+    public Company(String id, String name, String address, String website, String phoneNumber, String email, String description) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -40,7 +40,6 @@ public class Company {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.description = description;
-        this.owner = owner;
         this.rating = 0.0;
         this.activated = false;
     }
@@ -116,5 +115,9 @@ public class Company {
 
     public boolean isActivated() {
         return activated;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 }

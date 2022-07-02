@@ -1,7 +1,5 @@
 package com.agent.service;
 
-import com.agent.dto.APITokenRequestDTO;
-import com.agent.dto.APITokenResponseDTO;
 import com.agent.model.APIToken;
 import com.agent.model.User;
 import com.agent.repository.APITokenRepository;
@@ -23,7 +21,7 @@ public class APITokenService {
 
     public APIToken add(String apiToken, String userId) {
         Optional<User> user = userService.findById(userId);
-        if(user.isEmpty()) return null;
+        if (user.isEmpty()) return null;
         Optional<APIToken> existingApiToken = repository.findByUser(user);
         existingApiToken.ifPresent(repository::delete);
         APIToken newApiToken = new APIToken(apiToken, user.get());
@@ -32,9 +30,9 @@ public class APITokenService {
 
     public APIToken findByUser(String userId) {
         Optional<User> user = userService.findById(userId);
-        if(user.isEmpty()) return null;
+        if (user.isEmpty()) return null;
         Optional<APIToken> existingApiToken = repository.findByUser(user);
-        if(existingApiToken.isEmpty()) return null;
+        if (existingApiToken.isEmpty()) return null;
         else return existingApiToken.get();
     }
 }

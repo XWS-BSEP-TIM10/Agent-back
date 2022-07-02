@@ -20,10 +20,13 @@ public class EmailService {
 
     @Async
     public void sendEmail(String userEmail, String subject, String body) {
+        String username = env.getProperty("spring.mail.username");
+        if (username == null)
+            return;
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(userEmail);
         mailMessage.setSubject(subject);
-        mailMessage.setFrom(env.getProperty("spring.mail.username"));
+        mailMessage.setFrom(username);
         mailMessage.setText(body);
 
         javaMailSender.send(mailMessage);

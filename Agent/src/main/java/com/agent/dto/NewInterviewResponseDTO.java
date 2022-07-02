@@ -25,17 +25,6 @@ public class NewInterviewResponseDTO {
     public NewInterviewResponseDTO() {
     }
 
-    public NewInterviewResponseDTO(String id, String title, String hrInterview, String techInterview, String position, String creationDate, String candidateId, String companyId) {
-        this.id = id;
-        this.title = title;
-        this.hrInterview = hrInterview;
-        this.techInterview = techInterview;
-        this.position = position;
-        this.creationDate = creationDate;
-        this.candidateId = candidateId;
-        this.companyId = companyId;
-    }
-
     public NewInterviewResponseDTO(Interview interview) {
         this.id = interview.getId();
         this.title = interview.getTitle();

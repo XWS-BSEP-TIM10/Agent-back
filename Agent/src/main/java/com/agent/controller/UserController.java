@@ -14,7 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -38,11 +44,11 @@ public class UserController {
         try {
             User newUser = userService.addNewUser(new User(newUserDto.getEmail(), newUserDto.getPassword()));
             if (newUser == null) {
-                loggerService.userSigningUpFailed("Saving new user failed", newUserDto.getEmail());
+                loggerService.userSigningUpFailed("Saving new user failed", newUserDto.getEmail().replace("|", ""));
                 return ResponseEntity.internalServerError().build();
             }
-            loggerService.userSignedUp(newUser.getEmail());
-            return new ResponseEntity<>(new NewUserResponseDTO(newUser.getId(), newUser.getEmail()), HttpStatus.CREATED);
+            loggerService.userSignedUp(newUser.getUsername());
+            return new ResponseEntity<>(new NewUserResponseDTO(newUser.getId(), newUser.getUsername()), HttpStatus.CREATED);
         } catch (UserAlreadyExistsException e) {
             loggerService.userSigningUpFailed(e.getMessage(), newUserDto.getEmail());
             return ResponseEntity.badRequest().build();
@@ -54,7 +60,7 @@ public class UserController {
     public Map<String, String> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
+        ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
@@ -63,10 +69,10 @@ public class UserController {
     }
 
     @PutMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordDTO changePasswordDTO) {
+    public ResponseEntity<HttpStatus> changePassword(@RequestBody @Valid ChangePasswordDTO changePasswordDTO) {
         try {
             User changedUser = userService.changePassword(changePasswordDTO);
-            if(changedUser == null) {
+            if (changedUser == null) {
                 loggerService.passwordChangingFailed("Saving new password failed", SecurityContextHolder.getContext().getAuthentication().getName());
                 return ResponseEntity.internalServerError().build();
             }
